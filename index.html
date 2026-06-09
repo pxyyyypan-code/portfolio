@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pan Xiaoya — Portfolio</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;600&family=Noto+Sans+SC:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+:root {
+  --bg: #F5F2EB;
+  --teal: #2B6B5E;
+  --teal-light: #4A8F7F;
+  --orange: #C47832;
+  --ink: #2A2A28;
+  --font-hand: 'Caveat', cursive;
+  --font-body: 'Noto Sans SC', sans-serif;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html {
+  scroll-behavior: smooth;
+  scroll-snap-type: y mandatory;
+}
+
+body {
+  background-color: var(--bg);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+  font-family: var(--font-body);
+  color: var(--ink);
+  overflow-x: hidden;
+}
+
+/* ===== Homepage Section ===== */
+.home-section {
+  width: 100%;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  scroll-snap-align: start;
+}
+
+/* ===== Letter Container ===== */
+.letters-area {
+  width: 80%;
+  max-width: 1000px;
+  min-height: 400px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 40px;
+  position: relative;
+}
+/* ===== Letter items (draggable) ===== */
+.letter-item {
+  display: inline-block;
+  cursor: grab;
+  user-select: none;
+  touch-action: none;
+  transition: filter 0.2s ease;
+  position: relative;
+}
+
+.letter-item:active {
+  cursor: grabbing;
+}
+
+.letter-item:hover {
+  filter: drop-shadow(0 4px 8px rgba(43, 107, 94, 0.3));
+}
+
+.letter-item img {
+  height: 60px;
+  width: auto;
+  display: block;
+  pointer-events: none;
+}
+
+.letter-item.dragging {
+  z-index: 1000;
+  filter: drop-shadow(0 8px 20px rgba(196, 120, 50, 0.4));
+}
+
+/* Space between words */
+.word-space {
+  width: 28px;
+  display: inline-block;
+}
+
+/* ===== Scroll hint ===== */
+.scroll-hint {
+  position: absolute;
+  bottom: 40px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: var(--font-hand);
+  font-size: 18px;
+  color: var(--teal-light);
+  opacity: 0.7;
+  animation: bounce 2s ease-in-out infinite;
+}
+
+@keyframes bounce {
+  0%, 100% { transform: translateX(-50%) translateY(0); }
+  50% { transform: translateX(-50%) translateY(8px); }
+}
+
+/* ===== About section (second page) ===== */
+.about-section {
+  width: 100%;
+  height: 100vh;
+  scroll-snap-align: start;
+}
+
+.about-frame {
+  width: 100%;
+  height: 100%;
+  border: none;
+}
+
+/* ===== Responsive ===== */
+@media (max-width: 768px) {
+  .letter-item img {
+    height: 40px;
+  }
+  .letters-area {
+    width: 95%;
+    padding: 20px;
+  }
+  .word-space {
+    width: 16px;
+  }
+}
+  </style>
+</head>
+<body>
+
+<!-- ===== HOME PAGE ===== -->
+<section class="home-section" id="home">
+  <div class="letters-area" id="lettersArea"></div>
+  <div class="scroll-hint">
+    <span>↓ scroll down</span>
+  </div>
+</section>
+
+<!-- ===== ABOUT ME PAGE (iframe or embedded) ===== -->
+<section class="about-section" id="about-section">
+  <iframe src="about.html" class="about-frame" frameborder="0"></iframe>
+</section>
+
+<script>
+// ===== Letter-to-image mapping =====
+// "Hi! My name is Pan Xiaoya. This is my website."
+// Each non-space character maps to a letter image (字母 1.png ~ 字母 40.png, skip 4)
+const sentence = "Hi! My name is Pan Xiaoya. This is my website.";
+const imageNumbers = [1,2,3,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40];
+
+// Build the letter display
+const area = document.getElementById('lettersArea');
+let imgIndex = 0;
+
+for (let i = 0; i < sentence.length; i++) {
+  const char = sentence[i];
+
+  if (char === ' ') {
+    const spacer = document.createElement('span');
+    spacer.className = 'word-space';
+    area.appendChild(spacer);
+  } else {
+    if (imgIndex < imageNumbers.length) {
+      const item = document.createElement('div');
+      item.className = 'letter-item';
+      item.dataset.char = char;
+      item.dataset.originalIndex = i;
+
+      const img = document.createElement('img');
+      img.src = `assets/home/字母 ${imageNumbers[imgIndex]}.png`;
+      img.alt = char;
+      img.draggable = false;
+
+      item.appendChild(img);
+      area.appendChild(item);
+      imgIndex++;
+    }
+  }
+}
+
+// ===== Drag-and-drop logic =====
+let dragEl = null;
+let offsetX = 0, offsetY = 0;
+let startX = 0, startY = 0;
+let isDragging = false;
+
+// Store original positions
+const letters = document.querySelectorAll('.letter-item');
+
+letters.forEach(el => {
+  el.addEventListener('mousedown', startDrag);
+  el.addEventListener('touchstart', startDragTouch, { passive: false });
+});
+
+function startDrag(e) {
+  e.preventDefault();
+  dragEl = e.currentTarget;
+  const rect = dragEl.getBoundingClientRect();
+  offsetX = e.clientX - rect.left;
+  offsetY = e.clientY - rect.top;
+  startX = rect.left;
+  startY = rect.top;
+
+  // Switch to absolute positioning for free movement
+  dragEl.style.position = 'absolute';
+  dragEl.style.left = rect.left + 'px';
+  dragEl.style.top = rect.top + 'px';
+  dragEl.style.margin = '0';
+  dragEl.classList.add('dragging');
+  isDragging = true;
+
+  document.addEventListener('mousemove', onDrag);
+  document.addEventListener('mouseup', endDrag);
+}
+
+function startDragTouch(e) {
+  e.preventDefault();
+  const touch = e.touches[0];
+  dragEl = e.currentTarget;
+  const rect = dragEl.getBoundingClientRect();
+  offsetX = touch.clientX - rect.left;
+  offsetY = touch.clientY - rect.top;
+
+  dragEl.style.position = 'absolute';
+  dragEl.style.left = rect.left + 'px';
+  dragEl.style.top = rect.top + 'px';
+  dragEl.style.margin = '0';
+  dragEl.classList.add('dragging');
+  isDragging = true;
+
+  document.addEventListener('touchmove', onDragTouch, { passive: false });
+  document.addEventListener('touchend', endDragTouch);
+}
+
+function onDrag(e) {
+  if (!isDragging || !dragEl) return;
+  dragEl.style.left = (e.clientX - offsetX) + 'px';
+  dragEl.style.top = (e.clientY - offsetY) + 'px';
+}
+
+function onDragTouch(e) {
+  e.preventDefault();
+  if (!isDragging || !dragEl) return;
+  const touch = e.touches[0];
+  dragEl.style.left = (touch.clientX - offsetX) + 'px';
+  dragEl.style.top = (touch.clientY - offsetY) + 'px';
+}
+
+function endDrag() {
+  if (dragEl) {
+    dragEl.classList.remove('dragging');
+  }
+  isDragging = false;
+  dragEl = null;
+  document.removeEventListener('mousemove', onDrag);
+  document.removeEventListener('mouseup', endDrag);
+}
+
+function endDragTouch() {
+  if (dragEl) {
+    dragEl.classList.remove('dragging');
+  }
+  isDragging = false;
+  dragEl = null;
+  document.removeEventListener('touchmove', onDragTouch);
+  document.removeEventListener('touchend', endDragTouch);
+}
+</script>
+</body>
+</html>

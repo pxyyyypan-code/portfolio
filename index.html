@@ -63,7 +63,14 @@ body {
   flex-wrap: nowrap;
   align-items: baseline;
   justify-content: center;
-  gap: 6px;
+  gap: 2px;
+}
+
+.word-group {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: baseline;
+  gap: 1px;
 }
 
 /* ===== Letter items (draggable) ===== */
@@ -85,10 +92,14 @@ body {
 }
 
 .letter-item img {
-  height: 100px;
+  height: 80px;
   width: auto;
   display: block;
   pointer-events: none;
+}
+
+.letter-item.capital img {
+  height: 120px;
 }
 
 .letter-item.dragging {
@@ -98,7 +109,7 @@ body {
 
 /* Space between words */
 .word-space {
-  width: 40px;
+  width: 50px;
   display: inline-block;
 }
 
@@ -189,16 +200,27 @@ body {
 // lay them out in the CORRECT sentence order.
 // After careful analysis, the correct mapping is:
 
+// Sentence structure: each line is an array of words, each word is array of {id, capital}
+// Line 1: "Hi!" "My" "name" "is"
+// Line 2: "Pan" "Xiaoya."
+// Line 3: "This" "is" "my" "website."
 const lines = [
-  // Line 1: "Hi!  My  name  is"
-  // H  i  !     M  y     n  a  m  e     i   s
-  [1, 2, 17, 'space', 4, 5, 'space', 6, 7, 8, 9, 'space', 16, 10],
-  // Line 2: "Pan  Xiaoya."
-  // P   a   n      X   i   a   o   y   a   .
-  [11, 18, 14, 'space', 12, 19, 20, 15, 13, 21, 22],
-  // Line 3: "This  is  my  website."
-  // T   h   i   s      i   s      m   y      w   e   b   s   i   t   e   .
-  [23, 24, 25, 26, 'space', 27, 28, 'space', 29, 30, 'space', 31, 32, 33, 34, 35, 36, 37, 38],
+  [
+    [{id:1,cap:true},{id:2,cap:false},{id:17,cap:false}],        // Hi!
+    [{id:4,cap:true},{id:5,cap:false}],                           // My
+    [{id:6,cap:false},{id:7,cap:false},{id:8,cap:false},{id:9,cap:false}], // name
+    [{id:16,cap:false},{id:10,cap:false}],                        // is
+  ],
+  [
+    [{id:11,cap:true},{id:18,cap:false},{id:14,cap:false}],       // Pan
+    [{id:12,cap:true},{id:19,cap:false},{id:20,cap:false},{id:15,cap:false},{id:13,cap:false},{id:21,cap:false},{id:22,cap:false}], // Xiaoya.
+  ],
+  [
+    [{id:23,cap:true},{id:24,cap:false},{id:25,cap:false},{id:26,cap:false}], // This
+    [{id:27,cap:false},{id:28,cap:false}],                        // is
+    [{id:29,cap:false},{id:30,cap:false}],                        // my
+    [{id:31,cap:false},{id:32,cap:false},{id:33,cap:false},{id:34,cap:false},{id:35,cap:false},{id:36,cap:false},{id:37,cap:false},{id:38,cap:false}], // website.
+  ],
 ];
 
 const area = document.getElementById('lettersArea');
@@ -207,21 +229,29 @@ lines.forEach(line => {
   const lineDiv = document.createElement('div');
   lineDiv.className = 'text-line';
 
-  line.forEach(item => {
-    if (item === 'space') {
+  line.forEach((word, wordIdx) => {
+    // Add space between words (not before first word)
+    if (wordIdx > 0) {
       const spacer = document.createElement('span');
       spacer.className = 'word-space';
       lineDiv.appendChild(spacer);
-    } else {
+    }
+
+    const wordGroup = document.createElement('span');
+    wordGroup.className = 'word-group';
+
+    word.forEach(letter => {
       const el = document.createElement('div');
-      el.className = 'letter-item';
+      el.className = 'letter-item' + (letter.cap ? ' capital' : '');
       const img = document.createElement('img');
-      img.src = `assets/home/${item}.png`;
-      img.alt = `letter ${item}`;
+      img.src = `assets/home/${letter.id}.png`;
+      img.alt = `letter ${letter.id}`;
       img.draggable = false;
       el.appendChild(img);
-      lineDiv.appendChild(el);
-    }
+      wordGroup.appendChild(el);
+    });
+
+    lineDiv.appendChild(wordGroup);
   });
 
   area.appendChild(lineDiv);

@@ -47,17 +47,25 @@ body {
 
 /* ===== Letter Container ===== */
 .letters-area {
-  width: 80%;
-  max-width: 1000px;
-  min-height: 400px;
+  width: 85%;
+  max-width: 1200px;
   display: flex;
-  flex-wrap: wrap;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 4px;
+  gap: 16px;
   padding: 40px;
   position: relative;
 }
+
+.text-line {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: baseline;
+  justify-content: center;
+  gap: 6px;
+}
+
 /* ===== Letter items (draggable) ===== */
 .letter-item {
   display: inline-block;
@@ -77,7 +85,7 @@ body {
 }
 
 .letter-item img {
-  height: 60px;
+  height: 100px;
   width: auto;
   display: block;
   pointer-events: none;
@@ -90,7 +98,7 @@ body {
 
 /* Space between words */
 .word-space {
-  width: 28px;
+  width: 40px;
   display: inline-block;
 }
 
@@ -128,14 +136,14 @@ body {
 /* ===== Responsive ===== */
 @media (max-width: 768px) {
   .letter-item img {
-    height: 40px;
+    height: 60px;
   }
   .letters-area {
     width: 95%;
     padding: 20px;
   }
   .word-space {
-    width: 16px;
+    width: 20px;
   }
 }
   </style>
@@ -156,55 +164,57 @@ body {
 </section>
 
 <script>
-// ===== Letter-to-image mapping =====
-// "Hi! My name is Pan Xiaoya. This is my website."
-// Each non-space character maps to a letter image (字母 1.png ~ 字母 40.png, skip 4)
-const sentence = "Hi! My name is Pan Xiaoya. This is my website.";
-const imageNumbers = [1,2,3,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40];
+// ===== Sentence layout: 3 lines matching reference =====
+// Line 1: "Hi!  My name is"
+// Line 2: "Pan Xiaoya."
+// Line 3: "This is my website."
+// Image numbers mapped in sentence order (字母4 is missing from assets)
+const lines = [
+  // Line 1: H i ! [space] M y [space] n a m e [space] i s
+  [1, 2, 3, 'space', 5, 6, 'space', 7, 8, 9, 10, 'space', 11, 12],
+  // Line 2: P a n [space] X i a o y a .
+  [13, 14, 15, 'space', 16, 17, 18, 19, 20, 21, 22],
+  // Line 3: T h i s [space] i s [space] m y [space] w e b s i t e .
+  [23, 24, 25, 26, 'space', 27, 28, 'space', 29, 30, 'space', 31, 32, 33, 34, 35, 36, 37, 38],
+];
 
-// Build the letter display
 const area = document.getElementById('lettersArea');
-let imgIndex = 0;
 
-for (let i = 0; i < sentence.length; i++) {
-  const char = sentence[i];
+lines.forEach(line => {
+  const lineDiv = document.createElement('div');
+  lineDiv.className = 'text-line';
 
-  if (char === ' ') {
-    const spacer = document.createElement('span');
-    spacer.className = 'word-space';
-    area.appendChild(spacer);
-  } else {
-    if (imgIndex < imageNumbers.length) {
-      const item = document.createElement('div');
-      item.className = 'letter-item';
-      item.dataset.char = char;
-      item.dataset.originalIndex = i;
-
+  line.forEach(item => {
+    if (item === 'space') {
+      const spacer = document.createElement('span');
+      spacer.className = 'word-space';
+      lineDiv.appendChild(spacer);
+    } else {
+      const el = document.createElement('div');
+      el.className = 'letter-item';
       const img = document.createElement('img');
-      img.src = `assets/home/字母 ${imageNumbers[imgIndex]}.png`;
-      img.alt = char;
+      img.src = `assets/home/字母 ${item}.png`;
+      img.alt = `letter ${item}`;
       img.draggable = false;
-
-      item.appendChild(img);
-      area.appendChild(item);
-      imgIndex++;
+      el.appendChild(img);
+      lineDiv.appendChild(el);
     }
-  }
-}
+  });
+
+  area.appendChild(lineDiv);
+});
 
 // ===== Drag-and-drop logic =====
 let dragEl = null;
 let offsetX = 0, offsetY = 0;
-let startX = 0, startY = 0;
 let isDragging = false;
 
-// Store original positions
-const letters = document.querySelectorAll('.letter-item');
-
-letters.forEach(el => {
-  el.addEventListener('mousedown', startDrag);
-  el.addEventListener('touchstart', startDragTouch, { passive: false });
-});
+function initDrag() {
+  document.querySelectorAll('.letter-item').forEach(el => {
+    el.addEventListener('mousedown', startDrag);
+    el.addEventListener('touchstart', startDragTouch, { passive: false });
+  });
+}
 
 function startDrag(e) {
   e.preventDefault();
@@ -212,10 +222,7 @@ function startDrag(e) {
   const rect = dragEl.getBoundingClientRect();
   offsetX = e.clientX - rect.left;
   offsetY = e.clientY - rect.top;
-  startX = rect.left;
-  startY = rect.top;
 
-  // Switch to absolute positioning for free movement
   dragEl.style.position = 'absolute';
   dragEl.style.left = rect.left + 'px';
   dragEl.style.top = rect.top + 'px';
@@ -261,9 +268,7 @@ function onDragTouch(e) {
 }
 
 function endDrag() {
-  if (dragEl) {
-    dragEl.classList.remove('dragging');
-  }
+  if (dragEl) dragEl.classList.remove('dragging');
   isDragging = false;
   dragEl = null;
   document.removeEventListener('mousemove', onDrag);
@@ -271,14 +276,14 @@ function endDrag() {
 }
 
 function endDragTouch() {
-  if (dragEl) {
-    dragEl.classList.remove('dragging');
-  }
+  if (dragEl) dragEl.classList.remove('dragging');
   isDragging = false;
   dragEl = null;
   document.removeEventListener('touchmove', onDragTouch);
   document.removeEventListener('touchend', endDragTouch);
 }
+
+initDrag();
 </script>
 </body>
 </html>

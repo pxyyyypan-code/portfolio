@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>About Me — Pan Xiaoya</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;600&family=Noto+Sans+SC:wght@300;400;500&family=Patrick+Hand&display=swap" rel="stylesheet">
+  <style>
+/* ===== Global Tokens ===== */
+:root {
+  --bg: #F5F2EB;
+  --bg-paper: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+  --teal: #2B6B5E;
+  --teal-light: #4A8F7F;
+  --orange: #C47832;
+  --mustard: #D4A832;
+  --olive: #5C5C32;
+  --ink: #2A2A28;
+  --cream: #EDE8DC;
+  --font-hand: 'Caveat', 'Patrick Hand', cursive;
+  --font-body: 'Noto Sans SC', sans-serif;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background-color: var(--bg);
+  background-image: var(--bg-paper);
+  font-family: var(--font-body);
+  color: var(--ink);
+}
+
+/* ===== Page Layout ===== */
+.page {
+  width: 100%;
+  height: 100vh;
+  display: flex;
+  position: relative;
+  overflow: hidden;
+}
+
+/* ===== Left Side — Title + Character ===== */
+.left-panel {
+  width: 35%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  padding: 28px 0px 20px 40px;
+  position: relative;
+}
+
+.page-title {
+  font-family: var(--font-hand);
+  font-size: clamp(120px, 16vw, 280px);
+  font-weight: 600;
+  color: var(--teal);
+  letter-spacing: -0.01em;
+  line-height: 1.0;
+  margin-bottom: 8px;
+}
+
+.page-subtitle {
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 300;
+  color: var(--olive);
+  letter-spacing: 0.08em;
+  margin-bottom: 0;
+}
+
+.character-container {
+  flex: 1;
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-end;
+  padding: 0;
+  margin-top: -20px;
+}
+
+.character-container img {
+  max-height: 60vh;
+  max-width: 130%;
+  object-fit: contain;
+  /* Flip horizontally so the hand points toward the turntable (right side) */
+  transform: scaleX(-1);
+  filter: drop-shadow(0 8px 24px rgba(43, 107, 94, 0.12));
+  animation: float 4s ease-in-out infinite;
+  margin-right: -30%;
+}
+
+@keyframes float {
+  0%, 100% { transform: scaleX(-1) translateY(0); }
+  50% { transform: scaleX(-1) translateY(-10px); }
+}
+
+/* ===== Right Side — Carousel ===== */
+.right-panel {
+  width: 65%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+/* ===== Carousel Container — large, 2x size ===== */
+.carousel-wrapper {
+  position: relative;
+  width: min(92vh, 72vw);
+  height: min(92vh, 72vw);
+  cursor: grab;
+}
+
+.carousel-wrapper:active {
+  cursor: grabbing;
+}
+
+/* Rotating group: turntable + icons rotate together */
+.rotating-group {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  transition: transform 0.05s linear;
+}
+
+/* Turntable base */
+.turntable {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.turntable img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+/* Icons positioned around the circle — inside the rotating group */
+.icon-ring {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.icon-item {
+  position: absolute;
+  width: 16%;
+  height: 16%;
+  transform: translate(-50%, -50%);
+  cursor: pointer;
+  transition: filter 0.3s ease;
+  z-index: 10;
+}
+
+.icon-item:hover {
+  filter: drop-shadow(0 4px 12px rgba(196, 120, 50, 0.4)) brightness(1.05);
+}
+
+.icon-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+/* Icon label tooltip — counter-rotate so text stays upright */
+.icon-item .label {
+  position: absolute;
+  bottom: -24px;
+  left: 50%;
+  transform: translateX(-50%) rotate(calc(var(--counter-angle) * 1deg));
+  font-family: var(--font-body);
+  font-size: 11px;
+  font-weight: 400;
+  color: var(--ink);
+  white-space: nowrap;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+  background: rgba(245, 242, 235, 0.92);
+  padding: 3px 8px;
+  border-radius: 4px;
+}
+
+.icon-item:hover .label {
+  opacity: 1;
+}
+
+/* ===== Decorative elements ===== */
+.deco-dots {
+  position: absolute;
+  bottom: 40px;
+  left: 40px;
+  display: flex;
+  gap: 8px;
+}
+
+.deco-dots span {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--teal-light);
+  opacity: 0.4;
+}
+
+.deco-dots span:nth-child(2) { background: var(--orange); opacity: 0.5; }
+.deco-dots span:nth-child(3) { background: var(--mustard); opacity: 0.45; }
+
+/* Corner nav hint */
+.nav-hint {
+  position: absolute;
+  top: 48px;
+  right: 40px;
+  font-family: var(--font-hand);
+  font-size: 16px;
+  color: var(--teal-light);
+  opacity: 0.7;
+  letter-spacing: 0.02em;
+}
+
+/* ===== Modal/Overlay for clicked icon ===== */
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(42, 42, 40, 0.6);
+  backdrop-filter: blur(6px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.4s ease;
+}
+
+.overlay.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.overlay-content {
+  background: var(--bg);
+  border-radius: 16px;
+  padding: 48px;
+  max-width: 500px;
+  text-align: center;
+  transform: scale(0.9) translateY(20px);
+  transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  box-shadow: 0 24px 64px rgba(0,0,0,0.15);
+}
+
+.overlay.active .overlay-content {
+  transform: scale(1) translateY(0);
+}
+
+.overlay-content h3 {
+  font-family: var(--font-hand);
+  font-size: 32px;
+  color: var(--teal);
+  margin-bottom: 12px;
+}
+
+.overlay-content p {
+  font-size: 15px;
+  color: var(--olive);
+  line-height: 1.6;
+  margin-bottom: 24px;
+}
+
+.overlay-content .btn {
+  display: inline-block;
+  padding: 12px 28px;
+  background: var(--teal);
+  color: #fff;
+  border-radius: 24px;
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 500;
+  text-decoration: none;
+  transition: background 0.3s ease, transform 0.2s ease;
+}
+
+.overlay-content .btn:hover {
+  background: var(--teal-light);
+  transform: translateY(-2px);
+}
+
+.close-btn {
+  position: absolute;
+  top: 16px;
+  right: 20px;
+  width: 36px;
+  height: 36px;
+  border: none;
+  background: rgba(245, 242, 235, 0.8);
+  border-radius: 50%;
+  font-size: 20px;
+  cursor: pointer;
+  color: var(--ink);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s ease;
+}
+
+.close-btn:hover { background: var(--cream); }
+
+/* ===== Responsive ===== */
+@media (max-width: 900px) {
+  .page { flex-direction: column; }
+  .left-panel { width: 100%; height: auto; padding: 24px 24px 8px; }
+  .character-container { display: none; }
+  .right-panel { width: 100%; flex: 1; }
+  .carousel-wrapper { width: 80vw; height: 80vw; }
+}
+
+@media (max-width: 600px) {
+  .carousel-wrapper { width: 90vw; height: 90vw; }
+  .page-title { font-size: 36px; }
+}
+  </style>
+</head>
+<body>
+
+<div class="page">
+  <!-- Left Panel -->
+  <div class="left-panel">
+    <h1 class="page-title">About me</h1>
+    <p class="page-subtitle">关于我 · Pan Xiaoya</p>
+    <div class="character-container">
+      <img src="assets/about/me1.png" alt="Pan Xiaoya illustration" />
+    </div>
+    <div class="deco-dots">
+      <span></span><span></span><span></span>
+    </div>
+  </div>
+
+  <!-- Right Panel — Carousel -->
+  <div class="right-panel">
+    <span class="nav-hint">↻ click icons to explore</span>
+    <div class="carousel-wrapper" id="carouselWrapper">
+      <!-- Rotating group: turntable + icons rotate together -->
+      <div class="rotating-group" id="rotatingGroup">
+        <!-- Turntable base -->
+        <div class="turntable">
+          <img src="assets/about/转盘.png" alt="turntable" />
+        </div>
+        <!-- Icon ring -->
+        <div class="icon-ring" id="iconRing"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Overlay -->
+<div class="overlay" id="overlay">
+  <button class="close-btn" id="closeOverlay">×</button>
+  <div class="overlay-content" id="overlayContent">
+    <h3 id="overlayTitle">Title</h3>
+    <p id="overlayDesc">Description</p>
+    <a href="#" class="btn" id="overlayLink">进入页面 →</a>
+  </div>
+</div>
+
+<script>
+// ===== Icon Data =====
+const icons = [
+  { name: '摄影作品', img: 'assets/about/摄影作品.png', desc: '记录光影与瞬间，用镜头捕捉生活中的美好。', link: 'photo.html' },
+  { name: '排版推送', img: 'assets/about/排版推送.png', desc: '为公众号和活动设计的排版推送作品集。', link: 'editorial.html' },
+  { name: '视频剪辑', img: 'assets/about/视频剪辑.png', desc: '影像创作，用运动画面讲述故事。', link: 'video.html' },
+  { name: '旅行', img: 'assets/about/旅行.png', desc: '走过的路，看过的风景，旅途中的记忆。', link: 'travel.html' },
+  { name: '日常生活', img: 'assets/about/日常生活.png', desc: '平凡日子里的小确幸与生活点滴。', link: 'daily.html' },
+  { name: '曾获荣誉', img: 'assets/about/曾获荣誉.png', desc: '学业与活动中获得的荣誉与认可。', link: 'honors.html' },
+  { name: '成长报告', img: 'assets/about/成长报告.png', desc: '个人成长记录与阶段性反思总结。', link: 'growth.html' },
+  { name: '学业报告', img: 'assets/about/学业报告.png', desc: '课程作业与学术研究成果展示。', link: 'homework.html' },
+];
+
+// ===== Build Icon Ring =====
+const ring = document.getElementById('iconRing');
+const radius = 35; // percentage from center — in the middle of the ring band
+
+// The turntable image has divider lines. We need icons to sit BETWEEN them.
+// Looking at the turntable: it appears to have ~10 segments.
+// With 8 icons, we manually position each icon at a specific angle
+// to ensure they land in the center of a segment, not on a divider.
+// Offset tuned to match the turntable's divider pattern.
+const startAngle = -90; // start from top (in degrees)
+const segmentSize = 360 / 8; // 45° per icon
+// Add an offset so icons land between dividers (adjust this value if needed)
+const dividerOffset = 0; // degrees — fine-tune if icons still land on lines
+
+icons.forEach((item, i) => {
+  const angleDeg = startAngle + segmentSize * i + segmentSize / 2 + dividerOffset;
+  const angleRad = angleDeg * (Math.PI / 180);
+  const x = 50 + radius * Math.cos(angleRad);
+  const y = 50 + radius * Math.sin(angleRad);
+
+  const el = document.createElement('div');
+  el.className = 'icon-item';
+  el.style.left = x + '%';
+  el.style.top = y + '%';
+  el.innerHTML = `<img src="${item.img}" alt="${item.name}" /><span class="label">${item.name}</span>`;
+  el.addEventListener('click', (e) => {
+    e.stopPropagation();
+    openOverlay(item);
+  });
+  ring.appendChild(el);
+});
+
+// ===== Mouse DRAG-driven Turntable Rotation =====
+const wrapper = document.getElementById('carouselWrapper');
+const rotatingGroup = document.getElementById('rotatingGroup');
+let currentAngle = 0;
+let targetAngle = 0;
+let isDragging = false;
+let lastMouseAngle = null;
+
+// Calculate angle from mouse position to center of turntable
+function getMouseAngle(e) {
+  const rect = wrapper.getBoundingClientRect();
+  const cx = rect.left + rect.width / 2;
+  const cy = rect.top + rect.height / 2;
+  return Math.atan2(e.clientY - cy, e.clientX - cx) * (180 / Math.PI);
+}
+
+// Only start rotating on mousedown (drag start)
+wrapper.addEventListener('mousedown', (e) => {
+  // Don't start drag if clicking an icon
+  if (e.target.closest('.icon-item')) return;
+  isDragging = true;
+  lastMouseAngle = getMouseAngle(e);
+  wrapper.style.cursor = 'grabbing';
+  e.preventDefault();
+});
+
+// Stop rotating on mouseup anywhere
+document.addEventListener('mouseup', () => {
+  isDragging = false;
+  lastMouseAngle = null;
+  wrapper.style.cursor = 'grab';
+});
+
+// Rotate only while dragging
+document.addEventListener('mousemove', (e) => {
+  if (!isDragging) return;
+  const newAngle = getMouseAngle(e);
+  if (lastMouseAngle !== null) {
+    let delta = newAngle - lastMouseAngle;
+    // Handle wrap-around at ±180°
+    if (delta > 180) delta -= 360;
+    if (delta < -180) delta += 360;
+    targetAngle += delta;
+  }
+  lastMouseAngle = newAngle;
+});
+
+// Smooth animation loop
+function animate() {
+  // Ease toward target
+  currentAngle += (targetAngle - currentAngle) * 0.12;
+  rotatingGroup.style.transform = `rotate(${currentAngle}deg)`;
+
+  // Counter-rotate labels so they stay readable
+  document.querySelectorAll('.icon-item .label').forEach(label => {
+    label.style.transform = `translateX(-50%) rotate(${-currentAngle}deg)`;
+  });
+
+  requestAnimationFrame(animate);
+}
+animate();
+
+// ===== Overlay Logic =====
+const overlay = document.getElementById('overlay');
+const overlayTitle = document.getElementById('overlayTitle');
+const overlayDesc = document.getElementById('overlayDesc');
+const overlayLink = document.getElementById('overlayLink');
+const closeBtn = document.getElementById('closeOverlay');
+
+function openOverlay(item) {
+  overlayTitle.textContent = item.name;
+  overlayDesc.textContent = item.desc;
+  overlayLink.href = item.link;
+  overlay.classList.add('active');
+}
+
+function closeOverlay() {
+  overlay.classList.remove('active');
+}
+
+closeBtn.addEventListener('click', closeOverlay);
+overlay.addEventListener('click', (e) => {
+  if (e.target === overlay) closeOverlay();
+});
+
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') closeOverlay();
+});
+</script>
+</body>
+</html>

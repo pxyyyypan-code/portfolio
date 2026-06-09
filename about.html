@@ -77,10 +77,10 @@ html, body {
 
 .character-container {
   position: absolute;
-  top: 15%;
-  left: 18%;
-  width: 90%;
-  height: 80%;
+  top: 10%;
+  left: 5%;
+  width: 38%;
+  height: 85%;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -88,7 +88,7 @@ html, body {
 }
 
 .character-container img {
-  height: 135%;
+  height: 108%;
   max-width: none;
   object-fit: contain;
   transform: scaleX(-1);
@@ -391,7 +391,7 @@ const icons = [
 
 // ===== Build Icon Ring =====
 const ring = document.getElementById('iconRing');
-const radius = 37; // percentage from center — midpoint of the ring band
+const radius = 35; // percentage from center — midpoint of the ring band
 
 // The turntable has 10 segments (divider lines every 36°).
 // We place 8 icons, one per segment, skipping 2 segments.
@@ -401,7 +401,7 @@ const segAngle = 360 / totalSegments; // 36° per segment
 // Place icons in segments 0,1,2,3,4,5,6,7 (skip last 2)
 const startAngle = -90 + segAngle / 2; // offset to center within first segment
 // Fine-tune: adjust dividerOffset if icons still land on lines
-const dividerOffset = 5;
+const dividerOffset = 0;
 
 icons.forEach((item, i) => {
   const angleDeg = startAngle + segAngle * i + dividerOffset;

@@ -207,65 +207,29 @@ body {
 // lay them out in the CORRECT sentence order.
 // After careful analysis, the correct mapping is:
 
-// Available files: 1,2,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40
-// From screenshots we confirmed:
-// Sequential order 1,2,4,5,6,7,8,9,10,11,12 displays: H,i,M,y,n,a,m,e,s,P,X
-// So mapping is: 1=H,2=i,4=M,5=y,6=n,7=a,8=m,9=e,10=s,11=P,12=X
-// Then 13,14,15,16,17,18,19,20,21,22 displays: y,n,o,i,!,a,i,a,a,W
-// So: 13=y,14=n,15=o,16=i,17=!,18=a,19=i,20=a,21=a,22=W(probably w)
-// Then 23-38 displays: l,c,t,e,o,m,e,o,m,y,e,s,i,t,e,!
-// Wait - 38=! but from first screenshot I see 38 as the last char showing "!"
-// And 39,40 must be the two periods/dots (.)
+// Files 1.png to 39.png are now in correct sentence order.
+// Sentence: "Hi! My name is Pan Xiaoya. This is my website."
+// 39 files = 37 non-space chars + possibly 2 extra decorative chars
+// Let's map: positions 1-37 are the sentence chars, 38-39 might be extra
 //
-// Target: "Hi! My name is Pan Xiaoya. This is my website."
-// Characters: H,i,!,M,y,n,a,m,e,i,s,P,a,n,X,i,a,o,y,a,.,T,h,i,s,i,s,m,y,w,e,b,s,i,t,e,.
+// Char positions (1-indexed):
+// H(1) i(2) !(3)  M(4) y(5)  n(6) a(7) m(8) e(9)  i(10) s(11)
+// P(12) a(13) n(14)  X(15) i(16) a(17) o(18) y(19) a(20) .(21)
+// T(22) h(23) i(24) s(25)  i(26) s(27)  m(28) y(29)  w(30) e(31) b(32) s(33) i(34) t(35) e(36) .(37)
+// Extra: 38, 39 (unknown, won't use)
 //
-// Mapping to available images:
-// H=1, i=2, !=17, M=4, y=5
-// n=6, a=7, m=8, e=9, i=16, s=10
-// P=11, a=18, n=14
-// X=12, i=19, a=20, o=15, y=13, a=21, .=39
-// T=25(was showing 't' but maybe uppercase?), h=24(was showing 'c'?)...
-//
-// PROBLEM: images 23-38 show "l,c,t,e,o,m,e,o,m,y,e,s,i,t,e,!"
-// but we need "T,h,i,s,i,s,m,y,w,e,b,s,i,t,e,."
-//
-// Let me match by LETTER SHAPE regardless of what I think I see:
-// Need: T → likely one of the tall letters. 22 showed "W" could be "w" lowercase
-// 23 showed "l" could be lowercase "l" which looks like "I" or could be "T" side
-//
-// Actually the simplest fix: the sentence letters in order ARE the file numbers in order.
-// Files in numeric order: 1,2,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40
-// That's 39 files for 37 characters... unless the sentence has 39 chars
-//
-// Let me recount: "Hi! My name is Pan Xiaoya. This is my website."
-// H(1)i(2)!(3) M(4)y(5) n(6)a(7)m(8)e(9) i(10)s(11) P(12)a(13)n(14) X(15)i(16)a(17)o(18)y(19)a(20).(21) T(22)h(23)i(24)s(25) i(26)s(27) m(28)y(29) w(30)e(31)b(32)s(33)i(34)t(35)e(36).(37)
-// = 37 characters = 37 files needed
-// But we have 39 files. Extra 2 might be decorative or alternate chars.
-//
-// THE KEY INSIGHT: File numbers in sorted order map 1:1 to sentence characters!
-// Sorted: [1,2,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40]
-// Position: 1  2  3  4  5  6  7  8  9  10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39
-// Char:     H  i  !  M  y  n  a  m  e  i  s  P  a  n  X  i  a  o  y  a  .  T  h  i  s  i  s  m  y  w  e  b  s  i  t  e  .  ?  ?
-//
-// So the SORTED file list directly gives us the sentence order!
-// Files 39 and 40 are extra (maybe "Pan Xiaoya" text or decorative)
+// Line 1: "Hi!" "My" "name" "is" → positions 1-3, 4-5, 6-9, 10-11
+// Line 2: "Pan" "Xiaoya." → positions 12-14, 15-21
+// Line 3: "This" "is" "my" "website." → positions 22-25, 26-27, 28-29, 30-37
 
-const sortedFiles = [1,2,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40];
-
-// Sentence structure with word boundaries
-// Line 1: "Hi! My name is" = chars 0-2, 3-4, 5-8, 9-10
-// Line 2: "Pan Xiaoya." = chars 11-13, 14-20
-// Line 3: "This is my website." = chars 21-24, 25-26, 27-28, 29-36
+// Capital positions: H(1), M(4), P(12), X(15), T(22)
+const capitalPositions = [1, 4, 12, 15, 22];
 
 const lineStructure = [
-  [[0,1,2], [3,4], [5,6,7,8], [9,10]],           // Hi! My name is
-  [[11,12,13], [14,15,16,17,18,19,20]],            // Pan Xiaoya.
-  [[21,22,23,24], [25,26], [27,28], [29,30,31,32,33,34,35,36]], // This is my website.
+  [[1,2,3], [4,5], [6,7,8,9], [10,11]],
+  [[12,13,14], [15,16,17,18,19,20,21]],
+  [[22,23,24,25], [26,27], [28,29], [30,31,32,33,34,35,36,37]],
 ];
-
-// Capital letters (by position in sentence): H(0), M(3), P(11), X(14), T(21)
-const capitalPositions = [0, 3, 11, 14, 21];
 
 const area = document.getElementById('lettersArea');
 
@@ -283,9 +247,8 @@ lineStructure.forEach(line => {
     const wordGroup = document.createElement('span');
     wordGroup.className = 'word-group';
 
-    word.forEach(charIdx => {
-      const fileNum = sortedFiles[charIdx];
-      const isCap = capitalPositions.includes(charIdx);
+    word.forEach(fileNum => {
+      const isCap = capitalPositions.includes(fileNum);
       const el = document.createElement('div');
       el.className = 'letter-item' + (isCap ? ' capital' : '');
       const img = document.createElement('img');

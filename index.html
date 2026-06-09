@@ -192,7 +192,7 @@ body {
 const lines = [
   // Line 1: "Hi!  My  name  is"
   // H  i  !     M  y     n  a  m  e     i   s
-  [1, 2, 17, 'space', 3, 5, 'space', 6, 7, 8, 9, 'space', 16, 10],
+  [1, 2, 17, 'space', 4, 5, 'space', 6, 7, 8, 9, 'space', 16, 10],
   // Line 2: "Pan  Xiaoya."
   // P   a   n      X   i   a   o   y   a   .
   [11, 18, 14, 'space', 12, 19, 20, 15, 13, 21, 22],
@@ -216,7 +216,7 @@ lines.forEach(line => {
       const el = document.createElement('div');
       el.className = 'letter-item';
       const img = document.createElement('img');
-      img.src = `assets/home/字母 ${item}.png`;
+      img.src = `assets/home/${item}.png`;
       img.alt = `letter ${item}`;
       img.draggable = false;
       el.appendChild(img);

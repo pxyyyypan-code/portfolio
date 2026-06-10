@@ -243,7 +243,9 @@ lines.forEach(line => {
     wordGroup.className = 'word-group';
 
     word.forEach(filename => {
-      const isCap = filename.endsWith('A');
+      // Only 1A, 6A, 7A, 11A get capital size; 3A,4A,5A,8A,9A,10A stay normal
+      const capitalFiles = ['1A','6A','7A','11A'];
+      const isCap = capitalFiles.includes(filename);
       const el = document.createElement('div');
       el.className = 'letter-item' + (isCap ? ' capital' : '');
       const img = document.createElement('img');

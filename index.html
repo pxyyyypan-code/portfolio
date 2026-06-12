@@ -262,7 +262,7 @@ lines.forEach(line => {
   area.appendChild(lineDiv);
 });
 
-// ===== Lock all letters to absolute positions after layout =====
+// ===== Lock all letters to absolute positions after images load =====
 function lockPositions() {
   const areaRect = area.getBoundingClientRect();
   document.querySelectorAll('.letter-item').forEach(el => {
@@ -273,7 +273,24 @@ function lockPositions() {
     el.style.margin = '0';
   });
 }
-lockPositions();
+
+const allImages = document.querySelectorAll('.letter-item img');
+let loadedCount = 0;
+allImages.forEach(img => {
+  if (img.complete) {
+    loadedCount++;
+  } else {
+    img.addEventListener('load', () => {
+      loadedCount++;
+      if (loadedCount === allImages.length) {
+        lockPositions();
+      }
+    });
+  }
+});
+if (loadedCount === allImages.length) {
+  lockPositions();
+}
 
 // ===== Drag-and-drop logic =====
 let dragEl = null;

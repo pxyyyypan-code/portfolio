@@ -262,6 +262,19 @@ lines.forEach(line => {
   area.appendChild(lineDiv);
 });
 
+// ===== Lock all letters to absolute positions after layout =====
+function lockPositions() {
+  const areaRect = area.getBoundingClientRect();
+  document.querySelectorAll('.letter-item').forEach(el => {
+    const rect = el.getBoundingClientRect();
+    el.style.position = 'absolute';
+    el.style.left = (rect.left - areaRect.left) + 'px';
+    el.style.top = (rect.top - areaRect.top) + 'px';
+    el.style.margin = '0';
+  });
+}
+lockPositions();
+
 // ===== Drag-and-drop logic =====
 let dragEl = null;
 let offsetX = 0, offsetY = 0;
@@ -280,11 +293,6 @@ function startDrag(e) {
   const rect = dragEl.getBoundingClientRect();
   offsetX = e.clientX - rect.left;
   offsetY = e.clientY - rect.top;
-
-  dragEl.style.position = 'absolute';
-  dragEl.style.left = rect.left + 'px';
-  dragEl.style.top = rect.top + 'px';
-  dragEl.style.margin = '0';
   dragEl.classList.add('dragging');
   isDragging = true;
 
@@ -299,11 +307,6 @@ function startDragTouch(e) {
   const rect = dragEl.getBoundingClientRect();
   offsetX = touch.clientX - rect.left;
   offsetY = touch.clientY - rect.top;
-
-  dragEl.style.position = 'absolute';
-  dragEl.style.left = rect.left + 'px';
-  dragEl.style.top = rect.top + 'px';
-  dragEl.style.margin = '0';
   dragEl.classList.add('dragging');
   isDragging = true;
 
@@ -313,16 +316,18 @@ function startDragTouch(e) {
 
 function onDrag(e) {
   if (!isDragging || !dragEl) return;
-  dragEl.style.left = (e.clientX - offsetX) + 'px';
-  dragEl.style.top = (e.clientY - offsetY) + 'px';
+  const areaRect = area.getBoundingClientRect();
+  dragEl.style.left = (e.clientX - offsetX - areaRect.left) + 'px';
+  dragEl.style.top = (e.clientY - offsetY - areaRect.top) + 'px';
 }
 
 function onDragTouch(e) {
   e.preventDefault();
   if (!isDragging || !dragEl) return;
   const touch = e.touches[0];
-  dragEl.style.left = (touch.clientX - offsetX) + 'px';
-  dragEl.style.top = (touch.clientY - offsetY) + 'px';
+  const areaRect = area.getBoundingClientRect();
+  dragEl.style.left = (touch.clientX - offsetX - areaRect.left) + 'px';
+  dragEl.style.top = (touch.clientY - offsetY - areaRect.top) + 'px';
 }
 
 function endDrag() {

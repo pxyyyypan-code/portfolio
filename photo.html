@@ -98,14 +98,53 @@ html, body {
   border-right: 3px solid #333;
   padding: 20px 8px;
   position: relative;
+  perspective: 600px;
+}
+
+.film-card {
+  width: 100%; height: 100%;
+  position: relative;
+  transform-style: preserve-3d;
+  transition: transform 0.5s ease;
+  cursor: pointer;
+}
+
+.film-card.flipped {
+  transform: rotateY(180deg);
+}
+
+.film-card .card-front,
+.film-card .card-back {
+  position: absolute;
+  inset: 0;
+  backface-visibility: hidden;
+  border-radius: 2px;
+}
+
+.film-card .card-front {
   display: flex; align-items: center; justify-content: center;
 }
 
-.film-frame img {
+.film-card .card-front img {
   width: 100%; height: 100%;
   object-fit: cover;
   border-radius: 2px;
   pointer-events: none;
+}
+
+.film-card .card-back {
+  transform: rotateY(180deg);
+  background: #2a2a28;
+  display: flex; align-items: center; justify-content: center;
+  text-align: center;
+  padding: 12px;
+}
+
+.film-card .card-back span {
+  font-family: var(--font-hand);
+  font-size: 20px;
+  color: #E8E2D6;
+  line-height: 1.3;
 }
 
 .film-frame::before,
@@ -162,6 +201,14 @@ html, body {
 </div>
 
 <script>
+const photoTitles = [
+  '春·玉兰1','春·玉兰2','春·玉兰3','春·玉兰4','春·叶','春·枝','春·栀1','春·栀2',
+  '初夏·花1','初夏·花2','初夏·花3','初夏·花4','初夏·薰衣草1','初夏·薰衣草2',
+  '秋·空','秋日红叶1','秋日红叶2','冬·雪1','冬·雪2','冬·雪3','初雪新芽',
+  '梨园歌会1','梨园歌会2','元旦晚会1','赛里木湖','赛里木湖·天鹅',
+  '石塘夜景','毛线球之夏','果味树莓'
+];
+
 const tracks = [
   { el: document.getElementById('track0'), photos: [1,2,3,4,5,6,7,8,9,10], offset: 0, velocity: 0 },
   { el: document.getElementById('track1'), photos: [11,12,13,14,15,16,17,18,19,20], offset: 0, velocity: 0 },
@@ -172,16 +219,31 @@ function buildTracks() {
   tracks.forEach(track => {
     const strip = document.createElement('div');
     strip.className = 'film-strip';
-    // Duplicate photos for infinite loop illusion
     const allPhotos = [...track.photos, ...track.photos, ...track.photos];
     allPhotos.forEach(num => {
       const frame = document.createElement('div');
       frame.className = 'film-frame';
+
+      const card = document.createElement('div');
+      card.className = 'film-card';
+
+      const front = document.createElement('div');
+      front.className = 'card-front';
       const img = document.createElement('img');
       img.src = `assets/photo/${num}.jpg`;
       img.alt = '';
       img.draggable = false;
-      frame.appendChild(img);
+      front.appendChild(img);
+
+      const back = document.createElement('div');
+      back.className = 'card-back';
+      const title = document.createElement('span');
+      title.textContent = photoTitles[num - 1] || '';
+      back.appendChild(title);
+
+      card.appendChild(front);
+      card.appendChild(back);
+      frame.appendChild(card);
       strip.appendChild(frame);
     });
     track.el.appendChild(strip);
@@ -192,10 +254,12 @@ function buildTracks() {
 
 buildTracks();
 
-// Drag interaction
+// Drag interaction — track start position to distinguish click vs drag
 let activeTrack = null;
 let lastX = 0;
 let lastTime = 0;
+let dragStartX = 0;
+let didDrag = false;
 
 document.addEventListener('mousedown', (e) => {
   const trackEl = e.target.closest('.film-track');
@@ -204,6 +268,8 @@ document.addEventListener('mousedown', (e) => {
   activeTrack = tracks[idx];
   activeTrack.velocity = 0;
   lastX = e.clientX;
+  dragStartX = e.clientX;
+  didDrag = false;
   lastTime = performance.now();
   e.preventDefault();
 });
@@ -217,11 +283,21 @@ document.addEventListener('mousemove', (e) => {
   if (dt > 0) activeTrack.velocity = dx / dt * 16;
   lastX = e.clientX;
   lastTime = now;
+  if (Math.abs(e.clientX - dragStartX) > 5) didDrag = true;
 });
 
-document.addEventListener('mouseup', () => { activeTrack = null; });
+document.addEventListener('mouseup', (e) => {
+  if (!didDrag && activeTrack) {
+    const card = e.target.closest('.film-card');
+    if (card) card.classList.toggle('flipped');
+  }
+  activeTrack = null;
+});
 
 // Touch support
+let touchStartX = 0;
+let touchDidDrag = false;
+
 document.addEventListener('touchstart', (e) => {
   const trackEl = e.target.closest('.film-track');
   if (!trackEl) return;
@@ -229,6 +305,8 @@ document.addEventListener('touchstart', (e) => {
   activeTrack = tracks[idx];
   activeTrack.velocity = 0;
   lastX = e.touches[0].clientX;
+  touchStartX = e.touches[0].clientX;
+  touchDidDrag = false;
   lastTime = performance.now();
 }, { passive: true });
 
@@ -241,9 +319,16 @@ document.addEventListener('touchmove', (e) => {
   if (dt > 0) activeTrack.velocity = dx / dt * 16;
   lastX = e.touches[0].clientX;
   lastTime = now;
+  if (Math.abs(e.touches[0].clientX - touchStartX) > 5) touchDidDrag = true;
 }, { passive: true });
 
-document.addEventListener('touchend', () => { activeTrack = null; });
+document.addEventListener('touchend', (e) => {
+  if (!touchDidDrag && activeTrack) {
+    const card = e.target.closest('.film-card');
+    if (card) card.classList.toggle('flipped');
+  }
+  activeTrack = null;
+});
 
 // Animation loop with momentum
 function animate() {

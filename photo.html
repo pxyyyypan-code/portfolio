@@ -63,7 +63,7 @@ html, body {
   position: absolute;
   left: 50%; top: 50%;
   transform: translate(-50%, -50%);
-  width: 180px; height: 180px;
+  width: 450px; height: 450px;
   z-index: 10;
   pointer-events: none;
   display: flex; align-items: center; justify-content: center;
@@ -168,9 +168,9 @@ const photoTitles = [
 ];
 
 const rings = [
-  { el: document.getElementById('ring0'), photos: [1,2,3,4,5,6,7,8,9,10], angle: 0, radius: 280, tilt: 68, frameW: 120, frameH: 80 },
-  { el: document.getElementById('ring1'), photos: [11,12,13,14,15,16,17,18,19], angle: 0, radius: 380, tilt: 72, frameW: 130, frameH: 87 },
-  { el: document.getElementById('ring2'), photos: [20,21,22,23,24,25,26,27,28,29], angle: 0, radius: 490, tilt: 75, frameW: 140, frameH: 93 },
+  { el: document.getElementById('ring0'), photos: [1,2,3,4,5,6,7,8,9,10], angle: 0, radius: 560, tilt: 68, frameW: 240, frameH: 160 },
+  { el: document.getElementById('ring1'), photos: [11,12,13,14,15,16,17,18,19], angle: 0, radius: 760, tilt: 72, frameW: 260, frameH: 174 },
+  { el: document.getElementById('ring2'), photos: [20,21,22,23,24,25,26,27,28,29], angle: 0, radius: 980, tilt: 75, frameW: 280, frameH: 186 },
 ];
 
 function buildRings() {

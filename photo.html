@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Photography — Pan Xiaoya</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;600&family=Noto+Sans+SC:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+:root {
+  --bg: #F5F2EB;
+  --teal: #2B6B5E;
+  --teal-light: #4A8F7F;
+  --orange: #C47832;
+  --ink: #2A2A28;
+  --film-border: #2A2A28;
+  --film-bg: #1a1a18;
+  --font-hand: 'Caveat', cursive;
+  --font-body: 'Noto Sans SC', sans-serif;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  width: 100%; height: 100%;
+  overflow: hidden;
+  background-color: var(--bg);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+  font-family: var(--font-body);
+  color: var(--ink);
+}
+
+.page {
+  width: 100%; height: 100vh;
+  display: flex; align-items: center; justify-content: center;
+  position: relative; overflow: hidden;
+  perspective: 1200px;
+}
+
+.page-title {
+  position: absolute;
+  top: 36px; left: 48px;
+  font-family: var(--font-hand);
+  font-size: clamp(48px, 8vw, 100px);
+  font-weight: 600;
+  color: var(--teal);
+  line-height: 1;
+  pointer-events: none;
+}
+
+.page-subtitle {
+  position: absolute;
+  top: 130px; left: 52px;
+  font-size: 14px;
+  font-weight: 300;
+  color: #5C5C32;
+  letter-spacing: 0.08em;
+  pointer-events: none;
+}
+
+.camera-container {
+  position: absolute;
+  left: 50%; top: 50%;
+  transform: translate(-50%, -50%);
+  width: 180px; height: 180px;
+  z-index: 10;
+  pointer-events: none;
+  display: flex; align-items: center; justify-content: center;
+}
+
+.camera-container img {
+  width: 100%; height: 100%;
+  object-fit: contain;
+  filter: drop-shadow(0 8px 24px rgba(0,0,0,0.15));
+}
+
+.orbit-scene {
+  position: absolute;
+  inset: 0;
+  display: flex; align-items: center; justify-content: center;
+}
+
+.ring {
+  position: absolute;
+  left: 50%; top: 50%;
+  transform-style: preserve-3d;
+  pointer-events: none;
+}
+
+.ring .film-frame {
+  position: absolute;
+  transform-origin: center center;
+  pointer-events: auto;
+  cursor: grab;
+}
+
+.ring .film-frame:active { cursor: grabbing; }
+
+.film-frame {
+  background: var(--film-bg);
+  border: 3px solid var(--film-border);
+  border-radius: 4px;
+  padding: 6px 4px;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+  transition: filter 0.3s ease;
+}
+
+.film-frame:hover {
+  filter: brightness(1.1) drop-shadow(0 4px 12px rgba(196,120,50,0.5));
+}
+
+.film-frame img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  border-radius: 2px;
+  pointer-events: none;
+}
+
+.film-frame .sprocket {
+  position: absolute;
+  width: 8px; height: 6px;
+  background: var(--film-bg);
+  border: 1px solid #444;
+  border-radius: 1px;
+}
+
+.film-frame .sprocket.top { top: -4px; }
+.film-frame .sprocket.bottom { bottom: -4px; }
+.film-frame .sprocket.s1 { left: 15%; }
+.film-frame .sprocket.s2 { left: 45%; }
+.film-frame .sprocket.s3 { left: 75%; }
+
+.hint {
+  position: absolute;
+  bottom: 40px; left: 50%;
+  transform: translateX(-50%);
+  font-family: var(--font-hand);
+  font-size: 16px;
+  color: var(--teal-light);
+  opacity: 0.7;
+}
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="camera-container">
+    <img src="assets/photo/camera.png" alt="Camera" />
+  </div>
+  <div class="orbit-scene" id="orbitScene">
+    <div class="ring" id="ring0" data-ring="0"></div>
+    <div class="ring" id="ring1" data-ring="1"></div>
+    <div class="ring" id="ring2" data-ring="2"></div>
+  </div>
+  <h1 class="page-title">Photography</h1>
+  <p class="page-subtitle">摄影作品 · 胶卷记忆</p>
+  <span class="hint">↔ 拖拽胶卷环浏览作品</span>
+</div>
+
+<script>
+const photoTitles = [
+  '春·玉兰','春·玉兰','春·玉兰','春·玉兰','春·叶','春·枝','春·栀','春·栀',
+  '初夏·花','初夏·花','初夏·花','初夏·花','初夏·薰衣草','初夏·薰衣草',
+  '秋·空','秋日红叶','秋日红叶','冬·雪','冬·雪','冬·雪','初雪新芽',
+  '梨园歌会','梨园歌会','元旦晚会','赛里木湖','赛里木湖·天鹅',
+  '石塘夜景','毛线球之夏','果味树莓'
+];
+
+const rings = [
+  { el: document.getElementById('ring0'), photos: [1,2,3,4,5,6,7,8,9,10], angle: 0, radius: 280, tilt: 68, frameW: 120, frameH: 80 },
+  { el: document.getElementById('ring1'), photos: [11,12,13,14,15,16,17,18,19], angle: 0, radius: 380, tilt: 72, frameW: 130, frameH: 87 },
+  { el: document.getElementById('ring2'), photos: [20,21,22,23,24,25,26,27,28,29], angle: 0, radius: 490, tilt: 75, frameW: 140, frameH: 93 },
+];
+
+function buildRings() {
+  rings.forEach(ring => {
+    const count = ring.photos.length;
+    ring.photos.forEach((photoNum, i) => {
+      const frame = document.createElement('div');
+      frame.className = 'film-frame';
+      frame.style.width = ring.frameW + 'px';
+      frame.style.height = ring.frameH + 'px';
+
+      const img = document.createElement('img');
+      img.src = `assets/photo/${photoNum}.jpg`;
+      img.alt = photoTitles[photoNum - 1] || '';
+      img.draggable = false;
+      frame.appendChild(img);
+
+      // Sprocket holes
+      ['top','bottom'].forEach(pos => {
+        ['s1','s2','s3'].forEach(s => {
+          const sp = document.createElement('span');
+          sp.className = `sprocket ${pos} ${s}`;
+          frame.appendChild(sp);
+        });
+      });
+
+      ring.el.appendChild(frame);
+    });
+  });
+}
+
+function updateRingPositions() {
+  rings.forEach(ring => {
+    const count = ring.photos.length;
+    const frames = ring.el.querySelectorAll('.film-frame');
+    frames.forEach((frame, i) => {
+      const angleDeg = ring.angle + (360 / count) * i;
+      const angleRad = angleDeg * (Math.PI / 180);
+      const tiltRad = ring.tilt * (Math.PI / 180);
+
+      const x = ring.radius * Math.cos(angleRad);
+      const z = ring.radius * Math.sin(angleRad) * Math.cos(tiltRad);
+      const y = ring.radius * Math.sin(angleRad) * Math.sin(tiltRad) * 0.35;
+
+      const scale = 0.6 + 0.4 * ((z / ring.radius + 1) / 2);
+      const opacity = 0.4 + 0.6 * ((z / ring.radius + 1) / 2);
+
+      frame.style.transform = `translate(-50%, -50%) translate3d(${x}px, ${y}px, ${z}px) scale(${scale})`;
+      frame.style.opacity = opacity;
+      frame.style.zIndex = Math.round(z + ring.radius);
+    });
+  });
+}
+
+buildRings();
+updateRingPositions();
+
+// Drag interaction
+let activeRing = null;
+let lastX = 0;
+
+document.addEventListener('mousedown', (e) => {
+  const frame = e.target.closest('.film-frame');
+  if (!frame) return;
+  const ringEl = frame.parentElement;
+  const ringIdx = parseInt(ringEl.dataset.ring);
+  activeRing = rings[ringIdx];
+  lastX = e.clientX;
+  e.preventDefault();
+});
+
+document.addEventListener('mousemove', (e) => {
+  if (!activeRing) return;
+  const dx = e.clientX - lastX;
+  activeRing.angle += dx * 0.3;
+  lastX = e.clientX;
+  updateRingPositions();
+});
+
+document.addEventListener('mouseup', () => { activeRing = null; });
+
+// Touch support
+document.addEventListener('touchstart', (e) => {
+  const frame = e.target.closest('.film-frame');
+  if (!frame) return;
+  const ringEl = frame.parentElement;
+  const ringIdx = parseInt(ringEl.dataset.ring);
+  activeRing = rings[ringIdx];
+  lastX = e.touches[0].clientX;
+}, { passive: true });
+
+document.addEventListener('touchmove', (e) => {
+  if (!activeRing) return;
+  const dx = e.touches[0].clientX - lastX;
+  activeRing.angle += dx * 0.3;
+  lastX = e.touches[0].clientX;
+  updateRingPositions();
+}, { passive: true });
+
+document.addEventListener('touchend', () => { activeRing = null; });
+</script>
+</body>
+</html>

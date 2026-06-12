@@ -262,38 +262,12 @@ lines.forEach(line => {
   area.appendChild(lineDiv);
 });
 
-// ===== Lock all letters to absolute positions after images load =====
-function lockPositions() {
-  const areaRect = area.getBoundingClientRect();
-  document.querySelectorAll('.letter-item').forEach(el => {
-    const rect = el.getBoundingClientRect();
-    el.style.position = 'absolute';
-    el.style.left = (rect.left - areaRect.left) + 'px';
-    el.style.top = (rect.top - areaRect.top) + 'px';
-    el.style.margin = '0';
-  });
-}
-
-const allImages = document.querySelectorAll('.letter-item img');
-let loadedCount = 0;
-allImages.forEach(img => {
-  if (img.complete) {
-    loadedCount++;
-  } else {
-    img.addEventListener('load', () => {
-      loadedCount++;
-      if (loadedCount === allImages.length) {
-        lockPositions();
-      }
-    });
-  }
-});
-if (loadedCount === allImages.length) {
-  lockPositions();
-}
-
 // ===== Drag-and-drop logic =====
+// Strategy: keep flex layout intact. On drag start, insert a same-size
+// invisible placeholder to hold the space, then switch the letter to
+// position:fixed so it tracks the mouse perfectly in viewport coords.
 let dragEl = null;
+let placeholder = null;
 let offsetX = 0, offsetY = 0;
 let isDragging = false;
 
@@ -306,13 +280,7 @@ function initDrag() {
 
 function startDrag(e) {
   e.preventDefault();
-  dragEl = e.currentTarget;
-  const rect = dragEl.getBoundingClientRect();
-  offsetX = e.clientX - rect.left;
-  offsetY = e.clientY - rect.top;
-  dragEl.classList.add('dragging');
-  isDragging = true;
-
+  beginDrag(e.currentTarget, e.clientX, e.clientY);
   document.addEventListener('mousemove', onDrag);
   document.addEventListener('mouseup', endDrag);
 }
@@ -320,47 +288,66 @@ function startDrag(e) {
 function startDragTouch(e) {
   e.preventDefault();
   const touch = e.touches[0];
-  dragEl = e.currentTarget;
-  const rect = dragEl.getBoundingClientRect();
-  offsetX = touch.clientX - rect.left;
-  offsetY = touch.clientY - rect.top;
-  dragEl.classList.add('dragging');
-  isDragging = true;
-
+  beginDrag(e.currentTarget, touch.clientX, touch.clientY);
   document.addEventListener('touchmove', onDragTouch, { passive: false });
   document.addEventListener('touchend', endDragTouch);
 }
 
+function beginDrag(el, clientX, clientY) {
+  dragEl = el;
+  const rect = dragEl.getBoundingClientRect();
+  offsetX = clientX - rect.left;
+  offsetY = clientY - rect.top;
+
+  // Create placeholder to hold space in flex layout
+  placeholder = document.createElement('div');
+  placeholder.style.width = rect.width + 'px';
+  placeholder.style.height = rect.height + 'px';
+  placeholder.style.visibility = 'hidden';
+  placeholder.style.marginLeft = getComputedStyle(dragEl).marginLeft;
+  dragEl.parentNode.insertBefore(placeholder, dragEl);
+
+  // Move element to fixed positioning
+  dragEl.style.position = 'fixed';
+  dragEl.style.left = rect.left + 'px';
+  dragEl.style.top = rect.top + 'px';
+  dragEl.style.margin = '0';
+  dragEl.style.zIndex = '1000';
+  dragEl.classList.add('dragging');
+  isDragging = true;
+}
+
 function onDrag(e) {
   if (!isDragging || !dragEl) return;
-  const areaRect = area.getBoundingClientRect();
-  dragEl.style.left = (e.clientX - offsetX - areaRect.left) + 'px';
-  dragEl.style.top = (e.clientY - offsetY - areaRect.top) + 'px';
+  dragEl.style.left = (e.clientX - offsetX) + 'px';
+  dragEl.style.top = (e.clientY - offsetY) + 'px';
 }
 
 function onDragTouch(e) {
   e.preventDefault();
   if (!isDragging || !dragEl) return;
   const touch = e.touches[0];
-  const areaRect = area.getBoundingClientRect();
-  dragEl.style.left = (touch.clientX - offsetX - areaRect.left) + 'px';
-  dragEl.style.top = (touch.clientY - offsetY - areaRect.top) + 'px';
+  dragEl.style.left = (touch.clientX - offsetX) + 'px';
+  dragEl.style.top = (touch.clientY - offsetY) + 'px';
 }
 
 function endDrag() {
-  if (dragEl) dragEl.classList.remove('dragging');
-  isDragging = false;
-  dragEl = null;
+  finishDrag();
   document.removeEventListener('mousemove', onDrag);
   document.removeEventListener('mouseup', endDrag);
 }
 
 function endDragTouch() {
+  finishDrag();
+  document.removeEventListener('touchmove', onDragTouch);
+  document.removeEventListener('touchend', endDragTouch);
+}
+
+function finishDrag() {
   if (dragEl) dragEl.classList.remove('dragging');
   isDragging = false;
   dragEl = null;
-  document.removeEventListener('touchmove', onDragTouch);
-  document.removeEventListener('touchend', endDragTouch);
+  // Keep placeholder so layout stays stable
 }
 
 initDrag();

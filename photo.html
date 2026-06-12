@@ -14,7 +14,6 @@
   --teal-light: #4A8F7F;
   --orange: #C47832;
   --ink: #2A2A28;
-  --film-border: #2A2A28;
   --film-bg: #1a1a18;
   --font-hand: 'Caveat', cursive;
   --font-body: 'Noto Sans SC', sans-serif;
@@ -33,9 +32,7 @@ html, body {
 
 .page {
   width: 100%; height: 100vh;
-  display: flex; align-items: center; justify-content: center;
   position: relative; overflow: hidden;
-  perspective: 1200px;
 }
 
 .page-title {
@@ -43,72 +40,65 @@ html, body {
   top: 36px; left: 48px;
   font-family: var(--font-hand);
   font-size: clamp(48px, 8vw, 100px);
-  font-weight: 600;
-  color: var(--teal);
-  line-height: 1;
-  pointer-events: none;
+  font-weight: 600; color: var(--teal);
+  line-height: 1; pointer-events: none; z-index: 20;
 }
 
 .page-subtitle {
   position: absolute;
   top: 130px; left: 52px;
-  font-size: 14px;
-  font-weight: 300;
-  color: #5C5C32;
-  letter-spacing: 0.08em;
-  pointer-events: none;
+  font-size: 14px; font-weight: 300;
+  color: #5C5C32; letter-spacing: 0.08em;
+  pointer-events: none; z-index: 20;
 }
 
 .camera-container {
   position: absolute;
   left: 50%; top: 50%;
   transform: translate(-50%, -50%);
-  width: 450px; height: 450px;
-  z-index: 10;
-  pointer-events: none;
+  width: 320px; height: 320px;
+  z-index: 15; pointer-events: none;
   display: flex; align-items: center; justify-content: center;
 }
 
 .camera-container img {
   width: 100%; height: 100%;
   object-fit: contain;
-  filter: drop-shadow(0 8px 24px rgba(0,0,0,0.15));
+  filter: drop-shadow(0 8px 24px rgba(0,0,0,0.2));
 }
 
-.orbit-scene {
+.film-track {
   position: absolute;
-  inset: 0;
-  display: flex; align-items: center; justify-content: center;
-}
-
-.ring {
-  position: absolute;
-  left: 50%; top: 50%;
-  transform-style: preserve-3d;
-  pointer-events: none;
-}
-
-.ring .film-frame {
-  position: absolute;
-  transform-origin: center center;
-  pointer-events: auto;
+  left: 0; width: 100%;
+  height: 180px;
+  overflow: hidden;
   cursor: grab;
+  z-index: 5;
 }
 
-.ring .film-frame:active { cursor: grabbing; }
+.film-track:active { cursor: grabbing; }
+
+.film-track:nth-child(4) { top: calc(50% - 280px); transform: rotate(-3deg); }
+.film-track:nth-child(5) { top: calc(50% - 30px); transform: rotate(1.5deg); }
+.film-track:nth-child(6) { top: calc(50% + 200px); transform: rotate(-2deg); }
+
+.film-strip {
+  display: flex;
+  align-items: center;
+  height: 100%;
+  gap: 0;
+  will-change: transform;
+}
 
 .film-frame {
+  flex-shrink: 0;
+  width: 220px; height: 150px;
   background: var(--film-bg);
-  border: 3px solid var(--film-border);
-  border-radius: 4px;
-  padding: 6px 4px;
+  border-left: 3px solid #333;
+  border-right: 3px solid #333;
+  padding: 20px 8px;
+  position: relative;
   display: flex; align-items: center; justify-content: center;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.3);
-  transition: filter 0.3s ease;
-}
-
-.film-frame:hover {
-  filter: brightness(1.1) drop-shadow(0 4px 12px rgba(196,120,50,0.5));
 }
 
 .film-frame img {
@@ -118,159 +108,161 @@ html, body {
   pointer-events: none;
 }
 
-.film-frame .sprocket {
+.film-frame::before,
+.film-frame::after {
+  content: '';
   position: absolute;
-  width: 8px; height: 6px;
-  background: var(--film-bg);
-  border: 1px solid #444;
-  border-radius: 1px;
+  left: 0; right: 0;
+  height: 14px;
+  background: repeating-linear-gradient(
+    90deg,
+    transparent 0, transparent 8px,
+    #333 8px, #333 10px,
+    transparent 10px, transparent 20px
+  );
 }
 
-.film-frame .sprocket.top { top: -4px; }
-.film-frame .sprocket.bottom { bottom: -4px; }
-.film-frame .sprocket.s1 { left: 15%; }
-.film-frame .sprocket.s2 { left: 45%; }
-.film-frame .sprocket.s3 { left: 75%; }
+.film-frame::before { top: 0; }
+.film-frame::after { bottom: 0; }
+
+.film-strip-bg {
+  position: absolute;
+  inset: 0;
+  background: var(--film-bg);
+  opacity: 0.95;
+  z-index: -1;
+}
 
 .hint {
   position: absolute;
   bottom: 40px; left: 50%;
   transform: translateX(-50%);
   font-family: var(--font-hand);
-  font-size: 16px;
+  font-size: 18px;
   color: var(--teal-light);
   opacity: 0.7;
+  z-index: 20;
 }
 </style>
 </head>
 <body>
 <div class="page">
+  <h1 class="page-title">Photography</h1>
+  <p class="page-subtitle">摄影作品 · 胶卷记忆</p>
+
   <div class="camera-container">
     <img src="assets/photo/camera.png" alt="Camera" />
   </div>
-  <div class="orbit-scene" id="orbitScene">
-    <div class="ring" id="ring0" data-ring="0"></div>
-    <div class="ring" id="ring1" data-ring="1"></div>
-    <div class="ring" id="ring2" data-ring="2"></div>
-  </div>
-  <h1 class="page-title">Photography</h1>
-  <p class="page-subtitle">摄影作品 · 胶卷记忆</p>
-  <span class="hint">↔ 拖拽胶卷环浏览作品</span>
+
+  <div class="film-track" id="track0" data-track="0"></div>
+  <div class="film-track" id="track1" data-track="1"></div>
+  <div class="film-track" id="track2" data-track="2"></div>
+
+  <span class="hint">↔ 拖拽胶卷条浏览作品</span>
 </div>
 
 <script>
-const photoTitles = [
-  '春·玉兰','春·玉兰','春·玉兰','春·玉兰','春·叶','春·枝','春·栀','春·栀',
-  '初夏·花','初夏·花','初夏·花','初夏·花','初夏·薰衣草','初夏·薰衣草',
-  '秋·空','秋日红叶','秋日红叶','冬·雪','冬·雪','冬·雪','初雪新芽',
-  '梨园歌会','梨园歌会','元旦晚会','赛里木湖','赛里木湖·天鹅',
-  '石塘夜景','毛线球之夏','果味树莓'
+const tracks = [
+  { el: document.getElementById('track0'), photos: [1,2,3,4,5,6,7,8,9,10], offset: 0, velocity: 0 },
+  { el: document.getElementById('track1'), photos: [11,12,13,14,15,16,17,18,19,20], offset: 0, velocity: 0 },
+  { el: document.getElementById('track2'), photos: [21,22,23,24,25,26,27,28,29,1,2,3], offset: 0, velocity: 0 },
 ];
 
-const rings = [
-  { el: document.getElementById('ring0'), photos: [1,2,3,4,5,6,7,8,9,10], angle: 0, radius: 560, tilt: 68, frameW: 240, frameH: 160 },
-  { el: document.getElementById('ring1'), photos: [11,12,13,14,15,16,17,18,19], angle: 0, radius: 760, tilt: 72, frameW: 260, frameH: 174 },
-  { el: document.getElementById('ring2'), photos: [20,21,22,23,24,25,26,27,28,29], angle: 0, radius: 980, tilt: 75, frameW: 280, frameH: 186 },
-];
-
-function buildRings() {
-  rings.forEach(ring => {
-    const count = ring.photos.length;
-    ring.photos.forEach((photoNum, i) => {
+function buildTracks() {
+  tracks.forEach(track => {
+    const strip = document.createElement('div');
+    strip.className = 'film-strip';
+    // Duplicate photos for infinite loop illusion
+    const allPhotos = [...track.photos, ...track.photos, ...track.photos];
+    allPhotos.forEach(num => {
       const frame = document.createElement('div');
       frame.className = 'film-frame';
-      frame.style.width = ring.frameW + 'px';
-      frame.style.height = ring.frameH + 'px';
-
       const img = document.createElement('img');
-      img.src = `assets/photo/${photoNum}.jpg`;
-      img.alt = photoTitles[photoNum - 1] || '';
+      img.src = `assets/photo/${num}.jpg`;
+      img.alt = '';
       img.draggable = false;
       frame.appendChild(img);
-
-      // Sprocket holes
-      ['top','bottom'].forEach(pos => {
-        ['s1','s2','s3'].forEach(s => {
-          const sp = document.createElement('span');
-          sp.className = `sprocket ${pos} ${s}`;
-          frame.appendChild(sp);
-        });
-      });
-
-      ring.el.appendChild(frame);
+      strip.appendChild(frame);
     });
+    track.el.appendChild(strip);
+    track.strip = strip;
+    track.totalWidth = track.photos.length * 220;
   });
 }
 
-function updateRingPositions() {
-  rings.forEach(ring => {
-    const count = ring.photos.length;
-    const frames = ring.el.querySelectorAll('.film-frame');
-    frames.forEach((frame, i) => {
-      const angleDeg = ring.angle + (360 / count) * i;
-      const angleRad = angleDeg * (Math.PI / 180);
-      const tiltRad = ring.tilt * (Math.PI / 180);
-
-      const x = ring.radius * Math.cos(angleRad);
-      const z = ring.radius * Math.sin(angleRad) * Math.cos(tiltRad);
-      const y = ring.radius * Math.sin(angleRad) * Math.sin(tiltRad) * 0.35;
-
-      const scale = 0.6 + 0.4 * ((z / ring.radius + 1) / 2);
-      const opacity = 0.4 + 0.6 * ((z / ring.radius + 1) / 2);
-
-      frame.style.transform = `translate(-50%, -50%) translate3d(${x}px, ${y}px, ${z}px) scale(${scale})`;
-      frame.style.opacity = opacity;
-      frame.style.zIndex = Math.round(z + ring.radius);
-    });
-  });
-}
-
-buildRings();
-updateRingPositions();
+buildTracks();
 
 // Drag interaction
-let activeRing = null;
+let activeTrack = null;
 let lastX = 0;
+let lastTime = 0;
 
 document.addEventListener('mousedown', (e) => {
-  const frame = e.target.closest('.film-frame');
-  if (!frame) return;
-  const ringEl = frame.parentElement;
-  const ringIdx = parseInt(ringEl.dataset.ring);
-  activeRing = rings[ringIdx];
+  const trackEl = e.target.closest('.film-track');
+  if (!trackEl) return;
+  const idx = parseInt(trackEl.dataset.track);
+  activeTrack = tracks[idx];
+  activeTrack.velocity = 0;
   lastX = e.clientX;
+  lastTime = performance.now();
   e.preventDefault();
 });
 
 document.addEventListener('mousemove', (e) => {
-  if (!activeRing) return;
+  if (!activeTrack) return;
+  const now = performance.now();
   const dx = e.clientX - lastX;
-  activeRing.angle += dx * 0.3;
+  const dt = now - lastTime;
+  activeTrack.offset += dx;
+  if (dt > 0) activeTrack.velocity = dx / dt * 16;
   lastX = e.clientX;
-  updateRingPositions();
+  lastTime = now;
 });
 
-document.addEventListener('mouseup', () => { activeRing = null; });
+document.addEventListener('mouseup', () => { activeTrack = null; });
 
 // Touch support
 document.addEventListener('touchstart', (e) => {
-  const frame = e.target.closest('.film-frame');
-  if (!frame) return;
-  const ringEl = frame.parentElement;
-  const ringIdx = parseInt(ringEl.dataset.ring);
-  activeRing = rings[ringIdx];
+  const trackEl = e.target.closest('.film-track');
+  if (!trackEl) return;
+  const idx = parseInt(trackEl.dataset.track);
+  activeTrack = tracks[idx];
+  activeTrack.velocity = 0;
   lastX = e.touches[0].clientX;
+  lastTime = performance.now();
 }, { passive: true });
 
 document.addEventListener('touchmove', (e) => {
-  if (!activeRing) return;
+  if (!activeTrack) return;
+  const now = performance.now();
   const dx = e.touches[0].clientX - lastX;
-  activeRing.angle += dx * 0.3;
+  const dt = now - lastTime;
+  activeTrack.offset += dx;
+  if (dt > 0) activeTrack.velocity = dx / dt * 16;
   lastX = e.touches[0].clientX;
-  updateRingPositions();
+  lastTime = now;
 }, { passive: true });
 
-document.addEventListener('touchend', () => { activeRing = null; });
+document.addEventListener('touchend', () => { activeTrack = null; });
+
+// Animation loop with momentum
+function animate() {
+  tracks.forEach(track => {
+    // Apply momentum when not dragging
+    if (track !== activeTrack && Math.abs(track.velocity) > 0.1) {
+      track.offset += track.velocity;
+      track.velocity *= 0.95;
+    } else if (track !== activeTrack) {
+      track.velocity = 0;
+    }
+    // Wrap offset for infinite loop
+    if (track.offset > 0) track.offset -= track.totalWidth;
+    if (track.offset < -track.totalWidth * 2) track.offset += track.totalWidth;
+    track.strip.style.transform = `translateX(${track.offset}px)`;
+  });
+  requestAnimationFrame(animate);
+}
+animate();
 </script>
 </body>
 </html>

@@ -43,6 +43,7 @@ body {
   justify-content: center;
   position: relative;
   scroll-snap-align: start;
+  overflow: hidden;
 }
 
 /* ===== Letter Container ===== */
@@ -301,6 +302,7 @@ function startDragTouch(e) {
 function beginDrag(el, clientX, clientY) {
   dragEl = el;
   const rect = dragEl.getBoundingClientRect();
+  const areaRect = area.getBoundingClientRect();
   offsetX = clientX - rect.left;
   offsetY = clientY - rect.top;
 
@@ -312,10 +314,10 @@ function beginDrag(el, clientX, clientY) {
   placeholder.style.marginLeft = getComputedStyle(dragEl).marginLeft;
   dragEl.parentNode.insertBefore(placeholder, dragEl);
 
-  // Move element to fixed positioning
-  dragEl.style.position = 'fixed';
-  dragEl.style.left = rect.left + 'px';
-  dragEl.style.top = rect.top + 'px';
+  // Move element to absolute positioning (relative to letters-area)
+  dragEl.style.position = 'absolute';
+  dragEl.style.left = (rect.left - areaRect.left) + 'px';
+  dragEl.style.top = (rect.top - areaRect.top) + 'px';
   dragEl.style.margin = '0';
   dragEl.style.zIndex = '1000';
   dragEl.classList.add('dragging');
@@ -324,16 +326,18 @@ function beginDrag(el, clientX, clientY) {
 
 function onDrag(e) {
   if (!isDragging || !dragEl) return;
-  dragEl.style.left = (e.clientX - offsetX) + 'px';
-  dragEl.style.top = (e.clientY - offsetY) + 'px';
+  const areaRect = area.getBoundingClientRect();
+  dragEl.style.left = (e.clientX - offsetX - areaRect.left) + 'px';
+  dragEl.style.top = (e.clientY - offsetY - areaRect.top) + 'px';
 }
 
 function onDragTouch(e) {
   e.preventDefault();
   if (!isDragging || !dragEl) return;
   const touch = e.touches[0];
-  dragEl.style.left = (touch.clientX - offsetX) + 'px';
-  dragEl.style.top = (touch.clientY - offsetY) + 'px';
+  const areaRect = area.getBoundingClientRect();
+  dragEl.style.left = (touch.clientX - offsetX - areaRect.left) + 'px';
+  dragEl.style.top = (touch.clientY - offsetY - areaRect.top) + 'px';
 }
 
 function endDrag() {

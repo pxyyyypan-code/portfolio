@@ -494,6 +494,20 @@ function openOverlay(item) {
   overlayTitle.textContent = item.name;
   overlayDesc.textContent = item.desc;
   overlayLink.href = item.link;
+  overlayLink.onclick = function(e) {
+    e.preventDefault();
+    closeOverlay();
+    // If inside iframe, scroll parent to the corresponding section
+    if (window.parent !== window) {
+      const sectionId = item.link.replace('.html', '-section');
+      const target = window.parent.document.getElementById(sectionId);
+      if (target) {
+        target.scrollIntoView({ behavior: 'smooth' });
+        return;
+      }
+    }
+    window.location.href = item.link;
+  };
   overlay.classList.add('active');
 }
 

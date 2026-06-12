@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Editorial — Pan Xiaoya</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;600&family=Noto+Sans+SC:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+:root {
+  --bg: #F5F2EB;
+  --teal: #2B6B5E;
+  --teal-light: #4A8F7F;
+  --orange: #C47832;
+  --ink: #2A2A28;
+  --font-hand: 'Caveat', cursive;
+  --font-body: 'Noto Sans SC', sans-serif;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  width: 100%; height: 100%;
+  overflow: hidden;
+  background-color: var(--bg);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+  font-family: var(--font-body);
+  color: var(--ink);
+}
+
+.page {
+  width: 100%; height: 100vh;
+  display: flex; align-items: center; justify-content: center;
+  position: relative; overflow: hidden;
+}
+
+.page-title {
+  position: absolute;
+  top: 36px; left: 48px;
+  font-family: var(--font-hand);
+  font-size: clamp(48px, 8vw, 100px);
+  font-weight: 600; color: var(--teal);
+  line-height: 1; pointer-events: none; z-index: 20;
+}
+
+.page-subtitle {
+  position: absolute;
+  top: 130px; left: 52px;
+  font-size: 14px; font-weight: 300;
+  color: #5C5C32; letter-spacing: 0.08em;
+  pointer-events: none; z-index: 20;
+}
+
+.monitor-wrapper {
+  position: relative;
+  width: 75vw;
+  max-width: 1100px;
+}
+
+.monitor-img {
+  width: 100%;
+  height: auto;
+  display: block;
+  filter: drop-shadow(0 12px 40px rgba(0,0,0,0.15));
+}
+
+.screen-area {
+  position: absolute;
+  top: 3.5%;
+  left: 12%;
+  width: 76%;
+  height: 76%;
+  overflow: hidden;
+  background: #1a1a1a;
+  border-radius: 4px;
+}
+
+.screen-menu {
+  width: 100%; height: 100%;
+  display: flex; align-items: center; justify-content: center;
+  gap: 60px;
+}
+
+.menu-btn {
+  padding: 24px 56px;
+  font-family: var(--font-hand);
+  font-size: 36px;
+  font-weight: 600;
+  color: #fff;
+  background: var(--teal);
+  border: none;
+  border-radius: 16px;
+  cursor: pointer;
+  transition: transform 0.2s ease, background 0.3s ease;
+  box-shadow: 0 4px 20px rgba(43,107,94,0.3);
+}
+
+.menu-btn:hover {
+  background: var(--teal-light);
+  transform: translateY(-3px);
+}
+
+.screen-view {
+  position: absolute;
+  inset: 0;
+  background: #f8f6f0;
+}
+
+.screen-view.hidden { display: none; }
+
+.back-btn {
+  position: absolute;
+  top: 12px; left: 12px;
+  z-index: 10;
+  padding: 8px 20px;
+  font-family: var(--font-body);
+  font-size: 13px;
+  color: #fff;
+  background: rgba(43,107,94,0.85);
+  border: none;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.back-btn:hover { background: var(--teal); }
+
+.covers-track {
+  width: 100%; height: 100%;
+  overflow: hidden;
+  cursor: grab;
+  display: flex; align-items: center;
+}
+
+.covers-track:active { cursor: grabbing; }
+
+.covers-strip {
+  display: flex;
+  align-items: center;
+  height: 80%;
+  gap: 24px;
+  padding: 0 40px;
+  will-change: transform;
+}
+
+.covers-strip img {
+  height: 100%;
+  width: auto;
+  border-radius: 8px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+  pointer-events: none;
+  flex-shrink: 0;
+}
+
+.layouts-track {
+  width: 100%; height: 100%;
+  overflow: hidden;
+  cursor: grab;
+}
+
+.layouts-track:active { cursor: grabbing; }
+
+.layouts-strip {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  padding: 40px 20px;
+  will-change: transform;
+}
+
+.layouts-strip img {
+  width: 85%;
+  height: auto;
+  border-radius: 6px;
+  box-shadow: 0 3px 12px rgba(0,0,0,0.1);
+  pointer-events: none;
+  flex-shrink: 0;
+}
+</style>
+</head>
+<body>
+<div class="page">
+  <h1 class="page-title">Editorial</h1>
+  <p class="page-subtitle">排版推送 · 设计作品</p>
+
+  <div class="monitor-wrapper">
+    <img class="monitor-img" src="assets/editorial/monitor.png" alt="Monitor" />
+    <div class="screen-area" id="screenArea">
+      <!-- Menu -->
+      <div class="screen-menu" id="screenMenu">
+        <button class="menu-btn" id="btnCovers">封 面</button>
+        <button class="menu-btn" id="btnLayouts">排 版</button>
+      </div>
+      <!-- Covers view -->
+      <div class="screen-view hidden" id="coversView">
+        <button class="back-btn" id="backFromCovers">← 返回</button>
+        <div class="covers-track" id="coversTrack"></div>
+      </div>
+      <!-- Layouts view -->
+      <div class="screen-view hidden" id="layoutsView">
+        <button class="back-btn" id="backFromLayouts">← 返回</button>
+        <div class="layouts-track" id="layoutsTrack"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// Elements
+const screenMenu = document.getElementById('screenMenu');
+const coversView = document.getElementById('coversView');
+const layoutsView = document.getElementById('layoutsView');
+const coversTrack = document.getElementById('coversTrack');
+const layoutsTrack = document.getElementById('layoutsTrack');
+
+// Build covers (horizontal)
+const coversStrip = document.createElement('div');
+coversStrip.className = 'covers-strip';
+for (let i = 1; i <= 11; i++) {
+  const img = document.createElement('img');
+  img.src = `assets/editorial/covers/${i}.png`;
+  img.alt = `封面 ${i}`;
+  img.draggable = false;
+  coversStrip.appendChild(img);
+}
+coversTrack.appendChild(coversStrip);
+
+// Build layouts (vertical)
+const layoutsStrip = document.createElement('div');
+layoutsStrip.className = 'layouts-strip';
+for (let i = 1; i <= 12; i++) {
+  const img = document.createElement('img');
+  img.src = `assets/editorial/layouts/${i}.jpg`;
+  img.alt = `排版 ${i}`;
+  img.draggable = false;
+  layoutsStrip.appendChild(img);
+}
+layoutsTrack.appendChild(layoutsStrip);
+
+// Navigation
+document.getElementById('btnCovers').addEventListener('click', () => {
+  screenMenu.style.display = 'none';
+  coversView.classList.remove('hidden');
+});
+
+document.getElementById('btnLayouts').addEventListener('click', () => {
+  screenMenu.style.display = 'none';
+  layoutsView.classList.remove('hidden');
+});
+
+document.getElementById('backFromCovers').addEventListener('click', () => {
+  coversView.classList.add('hidden');
+  screenMenu.style.display = 'flex';
+});
+
+document.getElementById('backFromLayouts').addEventListener('click', () => {
+  layoutsView.classList.add('hidden');
+  screenMenu.style.display = 'flex';
+});
+
+// Horizontal drag for covers
+let coverOffset = 0, coverVelocity = 0, coverDragging = false;
+let cLastX = 0, cLastTime = 0;
+
+coversTrack.addEventListener('mousedown', (e) => {
+  coverDragging = true; coverVelocity = 0;
+  cLastX = e.clientX; cLastTime = performance.now();
+  e.preventDefault();
+});
+
+document.addEventListener('mousemove', (e) => {
+  if (!coverDragging) return;
+  const now = performance.now();
+  const dx = e.clientX - cLastX;
+  const dt = now - cLastTime;
+  coverOffset += dx;
+  if (dt > 0) coverVelocity = dx / dt * 16;
+  cLastX = e.clientX; cLastTime = now;
+});
+
+document.addEventListener('mouseup', () => { coverDragging = false; });
+
+// Vertical drag for layouts
+let layoutOffset = 0, layoutVelocity = 0, layoutDragging = false;
+let lLastY = 0, lLastTime = 0;
+
+layoutsTrack.addEventListener('mousedown', (e) => {
+  layoutDragging = true; layoutVelocity = 0;
+  lLastY = e.clientY; lLastTime = performance.now();
+  e.preventDefault();
+});
+
+document.addEventListener('mousemove', (e) => {
+  if (!layoutDragging) return;
+  const now = performance.now();
+  const dy = e.clientY - lLastY;
+  const dt = now - lLastTime;
+  layoutOffset += dy;
+  if (dt > 0) layoutVelocity = dy / dt * 16;
+  lLastY = e.clientY; lLastTime = now;
+});
+
+document.addEventListener('mouseup', () => { layoutDragging = false; });
+
+// Animation loop with momentum and bounds
+function animate() {
+  // Covers momentum
+  if (!coverDragging && Math.abs(coverVelocity) > 0.1) {
+    coverOffset += coverVelocity;
+    coverVelocity *= 0.94;
+  }
+  const maxCoverOffset = 0;
+  const minCoverOffset = -(coversStrip.scrollWidth - coversTrack.clientWidth);
+  coverOffset = Math.max(minCoverOffset, Math.min(maxCoverOffset, coverOffset));
+  coversStrip.style.transform = `translateX(${coverOffset}px)`;
+
+  // Layouts momentum
+  if (!layoutDragging && Math.abs(layoutVelocity) > 0.1) {
+    layoutOffset += layoutVelocity;
+    layoutVelocity *= 0.94;
+  }
+  const maxLayoutOffset = 0;
+  const minLayoutOffset = -(layoutsStrip.scrollHeight - layoutsTrack.clientHeight);
+  layoutOffset = Math.max(minLayoutOffset, Math.min(maxLayoutOffset, layoutOffset));
+  layoutsStrip.style.transform = `translateY(${layoutOffset}px)`;
+
+  requestAnimationFrame(animate);
+}
+animate();
+</script>
+</body>
+</html>

@@ -231,6 +231,7 @@ function buildTracks() {
       front.className = 'card-front';
       const img = document.createElement('img');
       img.src = `assets/photo/${num}.jpg`;
+      img.loading = 'lazy';
       img.alt = '';
       img.draggable = false;
       front.appendChild(img);

@@ -296,6 +296,7 @@ const row1Photos = [7,8,9,10,11];
 row0Photos.forEach(i => {
   const img = document.createElement('img');
   img.src = `assets/editorial/covers/${i}.png`;
+  img.loading = 'lazy';
   img.alt = `封面 ${i}`;
   img.draggable = false;
   coverStrip0.appendChild(img);
@@ -304,6 +305,7 @@ row0Photos.forEach(i => {
 row1Photos.forEach(i => {
   const img = document.createElement('img');
   img.src = `assets/editorial/covers/${i}.png`;
+  img.loading = 'lazy';
   img.alt = `封面 ${i}`;
   img.draggable = false;
   coverStrip1.appendChild(img);
@@ -341,6 +343,7 @@ const layoutsGrid = document.getElementById('layoutsGrid');
 for (let i = 1; i <= 12; i++) {
   const img = document.createElement('img');
   img.src = `assets/editorial/layouts/${i}.jpg`;
+  img.loading = 'lazy';
   img.alt = `排版 ${i}`;
   img.draggable = false;
   layoutsGrid.appendChild(img);

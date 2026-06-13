@@ -184,8 +184,9 @@ function togglePlay() {
   }
 }
 
-// Time update
+// Time update — skip if user is dragging
 video.addEventListener('timeupdate', () => {
+  if (draggingProgress) return;
   if (video.duration) {
     const pct = (video.currentTime / video.duration) * 100;
     progressFill.style.width = pct + '%';
@@ -207,8 +208,9 @@ progressBar.addEventListener('click', (e) => {
   video.currentTime = pct * video.duration;
 });
 
-// Drag progress handle
+// Drag progress handle — update visuals instantly, seek only on release
 let draggingProgress = false;
+let dragPct = 0;
 
 progressHandle.addEventListener('mousedown', (e) => {
   draggingProgress = true;
@@ -218,12 +220,18 @@ progressHandle.addEventListener('mousedown', (e) => {
 document.addEventListener('mousemove', (e) => {
   if (!draggingProgress) return;
   const rect = progressBar.getBoundingClientRect();
-  let pct = (e.clientX - rect.left) / rect.width;
-  pct = Math.max(0, Math.min(1, pct));
-  video.currentTime = pct * video.duration;
+  dragPct = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+  progressFill.style.width = (dragPct * 100) + '%';
+  progressHandle.style.left = (dragPct * 100) + '%';
+  timeDisplay.textContent = formatTime(dragPct * (video.duration || 0)) + ' / ' + formatTime(video.duration || 0);
 });
 
-document.addEventListener('mouseup', () => { draggingProgress = false; });
+document.addEventListener('mouseup', () => {
+  if (draggingProgress && video.duration) {
+    video.currentTime = dragPct * video.duration;
+  }
+  draggingProgress = false;
+});
 
 // Video ended
 video.addEventListener('ended', () => { playBtn.textContent = '▶'; });

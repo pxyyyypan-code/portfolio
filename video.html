@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Video — Pan Xiaoya</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;600&family=Noto+Sans+SC:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+:root {
+  --bg: #F5F2EB;
+  --teal: #2B6B5E;
+  --teal-light: #4A8F7F;
+  --orange: #C47832;
+  --ink: #2A2A28;
+  --font-hand: 'Caveat', cursive;
+  --font-body: 'Noto Sans SC', sans-serif;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  width: 100%; height: 100%;
+  overflow: hidden;
+  font-family: var(--font-body);
+  color: var(--ink);
+}
+
+.page {
+  width: 100%; height: 100vh;
+  position: relative; overflow: hidden;
+}
+
+.bg-img {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  object-fit: cover;
+  z-index: 0;
+}
+
+.page-title {
+  position: absolute;
+  top: 36px; left: 48px;
+  font-family: var(--font-hand);
+  font-size: clamp(48px, 8vw, 100px);
+  font-weight: 600; color: var(--teal);
+  line-height: 1; pointer-events: none; z-index: 20;
+}
+
+.page-subtitle {
+  position: absolute;
+  top: 130px; left: 52px;
+  font-size: 14px; font-weight: 300;
+  color: #5C5C32; letter-spacing: 0.08em;
+  pointer-events: none; z-index: 20;
+}
+
+.video-screen {
+  position: absolute;
+  top: 18%;
+  right: 8%;
+  width: 48%;
+  height: 60%;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  background: #000;
+  border-radius: 6px;
+  box-shadow: 0 0 80px 20px rgba(255,245,220,0.15), 0 8px 32px rgba(0,0,0,0.4);
+  overflow: hidden;
+}
+
+.video-screen video {
+  width: 100%;
+  flex: 1;
+  object-fit: contain;
+  background: #000;
+  cursor: pointer;
+}
+
+.video-controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 16px;
+  background: rgba(20,20,20,0.95);
+}
+
+.play-btn {
+  width: 36px; height: 36px;
+  border: none;
+  background: var(--teal);
+  color: #fff;
+  border-radius: 50%;
+  font-size: 14px;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: background 0.2s;
+  flex-shrink: 0;
+}
+
+.play-btn:hover { background: var(--teal-light); }
+
+.progress-bar {
+  flex: 1;
+  height: 6px;
+  background: #444;
+  border-radius: 3px;
+  position: relative;
+  cursor: pointer;
+}
+
+.progress-fill {
+  height: 100%;
+  background: var(--teal-light);
+  border-radius: 3px;
+  width: 0%;
+  pointer-events: none;
+}
+
+.progress-handle {
+  position: absolute;
+  top: 50%;
+  left: 0%;
+  transform: translate(-50%, -50%);
+  width: 14px; height: 14px;
+  background: #fff;
+  border-radius: 50%;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.4);
+  cursor: grab;
+}
+
+.progress-handle:active { cursor: grabbing; }
+
+.time-display {
+  font-size: 12px;
+  color: #aaa;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+</style>
+</head>
+<body>
+<div class="page">
+  <img class="bg-img" src="assets/video/bg.png" alt="Projector room" />
+  <h1 class="page-title">Video</h1>
+  <p class="page-subtitle">视频剪辑 · 影像创作</p>
+
+  <div class="video-screen" id="videoScreen">
+    <video id="mainVideo" preload="metadata">
+      <source src="assets/video/video.mp4" type="video/mp4">
+    </video>
+    <div class="video-controls" id="videoControls">
+      <button class="play-btn" id="playBtn">▶</button>
+      <div class="progress-bar" id="progressBar">
+        <div class="progress-fill" id="progressFill"></div>
+        <div class="progress-handle" id="progressHandle"></div>
+      </div>
+      <span class="time-display" id="timeDisplay">0:00 / 0:00</span>
+    </div>
+  </div>
+</div>
+
+<script>
+const video = document.getElementById('mainVideo');
+const playBtn = document.getElementById('playBtn');
+const progressBar = document.getElementById('progressBar');
+const progressFill = document.getElementById('progressFill');
+const progressHandle = document.getElementById('progressHandle');
+const timeDisplay = document.getElementById('timeDisplay');
+
+// Play/Pause
+playBtn.addEventListener('click', togglePlay);
+video.addEventListener('click', togglePlay);
+
+function togglePlay() {
+  if (video.paused) {
+    video.play();
+    playBtn.textContent = '⏸';
+  } else {
+    video.pause();
+    playBtn.textContent = '▶';
+  }
+}
+
+// Time update
+video.addEventListener('timeupdate', () => {
+  if (video.duration) {
+    const pct = (video.currentTime / video.duration) * 100;
+    progressFill.style.width = pct + '%';
+    progressHandle.style.left = pct + '%';
+  }
+  timeDisplay.textContent = formatTime(video.currentTime) + ' / ' + formatTime(video.duration || 0);
+});
+
+function formatTime(sec) {
+  const m = Math.floor(sec / 60);
+  const s = Math.floor(sec % 60);
+  return m + ':' + String(s).padStart(2, '0');
+}
+
+// Click on progress bar to seek
+progressBar.addEventListener('click', (e) => {
+  const rect = progressBar.getBoundingClientRect();
+  const pct = (e.clientX - rect.left) / rect.width;
+  video.currentTime = pct * video.duration;
+});
+
+// Drag progress handle
+let draggingProgress = false;
+
+progressHandle.addEventListener('mousedown', (e) => {
+  draggingProgress = true;
+  e.preventDefault();
+});
+
+document.addEventListener('mousemove', (e) => {
+  if (!draggingProgress) return;
+  const rect = progressBar.getBoundingClientRect();
+  let pct = (e.clientX - rect.left) / rect.width;
+  pct = Math.max(0, Math.min(1, pct));
+  video.currentTime = pct * video.duration;
+});
+
+document.addEventListener('mouseup', () => { draggingProgress = false; });
+
+// Video ended
+video.addEventListener('ended', () => { playBtn.textContent = '▶'; });
+</script>
+</body>
+</html>

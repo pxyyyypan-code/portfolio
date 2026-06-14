@@ -98,11 +98,11 @@ html, body {
   position: absolute;
   top: 50px;
   left: 0;
-  width: 9999px;
   height: 3px;
   background: linear-gradient(90deg, var(--teal-light), var(--teal), var(--orange));
   border-radius: 2px;
   pointer-events: none;
+}
 }
 
 .timeline-node {
@@ -307,6 +307,11 @@ const endNode = document.createElement('div');
 endNode.className = 'timeline-end';
 endNode.innerHTML = '<span>未完待续...</span>';
 track.appendChild(endNode);
+
+// Set line width to match full track content width
+requestAnimationFrame(() => {
+  line.style.width = track.scrollWidth + 'px';
+});
 
 // Slider logic
 let dragging = false;

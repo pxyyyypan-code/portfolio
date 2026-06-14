@@ -80,8 +80,7 @@ html, body {
 
 .timeline-viewport {
   width: 100%;
-  overflow-x: hidden;
-  overflow-y: visible;
+  overflow: hidden;
   position: relative;
 }
 
@@ -90,7 +89,7 @@ html, body {
   align-items: flex-start;
   gap: 0;
   position: relative;
-  padding: 120px 0 50px;
+  padding: 30px 0 50px;
   will-change: transform;
 }
 
@@ -145,39 +144,36 @@ html, body {
   white-space: nowrap;
 }
 
-.tooltip {
-  position: absolute;
-  bottom: calc(100% + 12px);
-  left: 50%;
-  transform: translateX(-50%) translateY(8px);
-  opacity: 0;
+.float-tooltip {
+  position: fixed;
   pointer-events: none;
-  transition: opacity 0.3s ease, transform 0.3s ease;
-  z-index: 100;
+  z-index: 9999;
+  opacity: 0;
+  transition: opacity 0.25s ease;
+  transform: translateX(-50%);
 }
 
-.timeline-node:hover .tooltip {
+.float-tooltip.visible {
   opacity: 1;
-  transform: translateX(-50%) translateY(0);
 }
 
-.tooltip-inner {
+.float-tooltip .tooltip-inner {
   position: relative;
   background: url('assets/honors/textbox.png') center/contain no-repeat;
-  width: 200px;
-  height: 100px;
+  width: 220px;
+  height: 110px;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 16px 20px;
+  padding: 16px 24px;
 }
 
-.tooltip-text {
+.float-tooltip .tooltip-text {
   font-size: 13px;
   color: var(--ink);
   text-align: center;
   line-height: 1.5;
-  max-width: 150px;
+  max-width: 160px;
 }
 
 .timeline-end {
@@ -261,6 +257,12 @@ html, body {
   </div>
 </div>
 
+<div class="float-tooltip" id="floatTooltip">
+  <div class="tooltip-inner">
+    <span class="tooltip-text" id="tooltipText"></span>
+  </div>
+</div>
+
 <script>
 const honors = [
   { date: '2025.1', text: '成为党支部积极分子', category: '学生工作' },
@@ -289,16 +291,12 @@ track.appendChild(line);
 honors.forEach(item => {
   const node = document.createElement('div');
   node.className = 'timeline-node';
+  node.dataset.text = item.text;
 
   node.innerHTML = `
     <span class="node-date">${item.date}</span>
     <div class="node-dot"></div>
     <span class="node-category">${item.category}</span>
-    <div class="tooltip">
-      <div class="tooltip-inner">
-        <span class="tooltip-text">${item.text}</span>
-      </div>
-    </div>
   `;
   track.appendChild(node);
 });
@@ -341,6 +339,26 @@ sliderTrack.addEventListener('click', (e) => {
   scrollPct = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
   sliderHandle.style.left = (scrollPct * 100) + '%';
   updateTrackPosition(scrollPct);
+});
+
+// Floating tooltip logic
+const floatTooltip = document.getElementById('floatTooltip');
+const tooltipText = document.getElementById('tooltipText');
+
+document.querySelectorAll('.timeline-node').forEach(node => {
+  node.addEventListener('mouseenter', () => {
+    tooltipText.textContent = node.dataset.text;
+    floatTooltip.classList.add('visible');
+  });
+
+  node.addEventListener('mousemove', (e) => {
+    floatTooltip.style.left = e.clientX + 'px';
+    floatTooltip.style.top = (e.clientY - 130) + 'px';
+  });
+
+  node.addEventListener('mouseleave', () => {
+    floatTooltip.classList.remove('visible');
+  });
 });
 </script>
 </body>

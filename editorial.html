@@ -24,7 +24,9 @@ html, body {
   width: 100%; height: 100%;
   overflow: hidden;
   background-color: var(--bg);
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+  background-image:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='paper'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='5' seed='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23paper)' opacity='0.08'/%3E%3C/svg%3E"),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='fiber'%3E%3CfeTurbulence type='turbulence' baseFrequency='0.3 1.5' numOctaves='2' seed='5' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23fiber)' opacity='0.04'/%3E%3C/svg%3E");
   font-family: var(--font-body);
   color: var(--ink);
 }
@@ -233,10 +235,32 @@ html, body {
   box-shadow: 0 2px 8px rgba(0,0,0,0.1);
   display: block;
 }
+.back-home-btn {
+  position: absolute;
+  top: 36px; right: 48px;
+  padding: 8px 20px;
+  font-family: var(--font-hand);
+  font-size: 18px;
+  color: var(--teal);
+  background: rgba(245,242,235,0.8);
+  border: 1.5px solid var(--teal-light);
+  border-radius: 20px;
+  cursor: pointer;
+  z-index: 30;
+  transition: background 0.2s, transform 0.2s;
+  text-decoration: none;
+}
+
+.back-home-btn:hover {
+  background: var(--teal);
+  color: #fff;
+  transform: translateY(-2px);
+}
 </style>
 </head>
 <body>
 <div class="page">
+  <a class="back-home-btn" id="backBtn">← 返回</a>
   <h1 class="page-title">Editorial</h1>
   <p class="page-subtitle">排版推送 · 设计作品</p>
 
@@ -375,6 +399,10 @@ document.getElementById('backFromLayouts').addEventListener('click', () => {
 // Layouts uses native overflow-y scroll (mousewheel)
 
 // No animation loop needed — layouts uses native scroll, covers use sliders
+
+document.getElementById('backBtn').addEventListener('click', () => {
+  window.parent.document.getElementById('about-section').scrollIntoView({ behavior: 'smooth' });
+});
 </script>
 </body>
 </html>

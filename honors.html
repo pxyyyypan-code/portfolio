@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Honors — Pan Xiaoya</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;600&family=Noto+Sans+SC:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+:root {
+  --bg: #F5F2EB;
+  --teal: #2B6B5E;
+  --teal-light: #4A8F7F;
+  --orange: #C47832;
+  --ink: #2A2A28;
+  --font-hand: 'Caveat', cursive;
+  --font-body: 'Noto Sans SC', sans-serif;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  width: 100%; height: 100%;
+  overflow: hidden;
+  background-color: var(--bg);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+  font-family: var(--font-body);
+  color: var(--ink);
+}
+
+.page {
+  width: 100%; height: 100vh;
+  position: relative; overflow: hidden;
+  display: flex; flex-direction: column;
+}
+
+.page-title {
+  position: absolute;
+  top: 36px; left: 48px;
+  font-family: var(--font-hand);
+  font-size: clamp(48px, 8vw, 100px);
+  font-weight: 600; color: var(--teal);
+  line-height: 1; pointer-events: none; z-index: 20;
+}
+
+.page-subtitle {
+  position: absolute;
+  top: 130px; left: 52px;
+  font-size: 14px; font-weight: 300;
+  color: #5C5C32; letter-spacing: 0.08em;
+  pointer-events: none; z-index: 20;
+}
+
+.crown-area {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-bottom: 40px;
+}
+
+.crown-area img {
+  max-height: 45vh;
+  max-width: 50vw;
+  object-fit: contain;
+  filter: drop-shadow(0 8px 30px rgba(196, 120, 50, 0.25));
+}
+
+.timeline-section {
+  height: 33vh;
+  position: relative;
+  padding: 0 60px 30px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 16px;
+}
+
+.timeline-viewport {
+  width: 100%;
+  overflow: hidden;
+  position: relative;
+}
+
+.timeline-track {
+  display: flex;
+  align-items: flex-start;
+  gap: 0;
+  position: relative;
+  padding: 30px 0 50px;
+  will-change: transform;
+}
+
+.timeline-line {
+  position: absolute;
+  top: 50px;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--teal-light), var(--teal), var(--orange));
+  border-radius: 2px;
+  pointer-events: none;
+}
+
+.timeline-node {
+  flex-shrink: 0;
+  width: 140px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  cursor: pointer;
+}
+
+.node-date {
+  font-family: var(--font-hand);
+  font-size: 15px;
+  color: var(--teal);
+  margin-bottom: 8px;
+  white-space: nowrap;
+}
+
+.node-dot {
+  width: 16px; height: 16px;
+  border-radius: 50%;
+  background: var(--teal);
+  border: 3px solid var(--bg);
+  box-shadow: 0 0 0 2px var(--teal-light);
+  transition: transform 0.2s ease, background 0.2s ease;
+  z-index: 2;
+}
+
+.timeline-node:hover .node-dot {
+  transform: scale(1.4);
+  background: var(--orange);
+}
+
+.node-category {
+  font-size: 11px;
+  color: #888;
+  margin-top: 8px;
+  white-space: nowrap;
+}
+
+.tooltip {
+  position: absolute;
+  bottom: calc(100% + 12px);
+  left: 50%;
+  transform: translateX(-50%) translateY(8px);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  z-index: 100;
+}
+
+.timeline-node:hover .tooltip {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+.tooltip-inner {
+  position: relative;
+  background: url('assets/honors/textbox.png') center/contain no-repeat;
+  width: 200px;
+  height: 100px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px 20px;
+}
+
+.tooltip-text {
+  font-size: 13px;
+  color: var(--ink);
+  text-align: center;
+  line-height: 1.5;
+  max-width: 150px;
+}
+
+.timeline-end {
+  flex-shrink: 0;
+  width: 160px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-top: 30px;
+}
+
+.timeline-end span {
+  font-family: var(--font-hand);
+  font-size: 22px;
+  color: var(--teal-light);
+  opacity: 0.7;
+  white-space: nowrap;
+}
+
+.slider-container {
+  width: 60%;
+  margin: 0 auto;
+  height: 20px;
+  display: flex;
+  align-items: center;
+}
+
+.slider-track {
+  width: 100%;
+  height: 4px;
+  background: #d4cfc4;
+  border-radius: 2px;
+  position: relative;
+  cursor: pointer;
+}
+
+.slider-handle {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  transform: translate(-50%, -50%);
+  width: 20px; height: 20px;
+  background: var(--teal);
+  border-radius: 50%;
+  cursor: grab;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+  transition: background 0.2s;
+}
+
+.slider-handle:hover { background: var(--teal-light); }
+.slider-handle:active { cursor: grabbing; }
+
+.timeline-hint {
+  text-align: center;
+  font-family: var(--font-hand);
+  font-size: 16px;
+  color: var(--teal-light);
+  opacity: 0.7;
+}
+</style>
+</head>
+<body>
+<div class="page">
+  <h1 class="page-title">Honors</h1>
+  <p class="page-subtitle">曾获荣誉 · 成长足迹</p>
+
+  <div class="crown-area">
+    <img src="assets/honors/crown.png" alt="Crown" />
+  </div>
+
+  <div class="timeline-section" id="timelineSection">
+    <div class="timeline-viewport" id="timelineViewport">
+      <div class="timeline-track" id="timelineTrack"></div>
+    </div>
+    <div class="slider-container">
+      <div class="slider-track" id="sliderTrack">
+        <div class="slider-handle" id="sliderHandle"></div>
+      </div>
+    </div>
+    <p class="timeline-hint">← 拖动滑块浏览时间线 →</p>
+  </div>
+</div>
+
+<script>
+const honors = [
+  { date: '2025.1', text: '成为党支部积极分子', category: '学生工作' },
+  { date: '2025.9', text: '任班级学生委员', category: '学生工作' },
+  { date: '2025.9', text: '任院新媒体中心干事', category: '学生工作' },
+  { date: '2026.2', text: '寒假调研活动获得京师一等奖', category: '社会实践' },
+  { date: '2026.3', text: '任白鸽外联干事', category: '学生工作' },
+  { date: '2026.4', text: '参与数媒静态设计大赛并获北京市三等奖', category: '科研竞赛' },
+  { date: '2026.4', text: '参与本基并成功立项校级', category: '科研竞赛' },
+  { date: '2026.5', text: '代表白鸽参与人大出访活动', category: '学生工作' },
+  { date: '2026.5', text: '随导师参与科研项目', category: '科研竞赛' },
+  { date: '2026.5', text: '参与暑期支教活动', category: '社会实践' },
+  { date: '2026.6', text: '获京师一等奖助学金', category: '学业成绩' },
+];
+
+const track = document.getElementById('timelineTrack');
+const viewport = document.getElementById('timelineViewport');
+const sliderTrack = document.getElementById('sliderTrack');
+const sliderHandle = document.getElementById('sliderHandle');
+
+// Build timeline nodes
+const line = document.createElement('div');
+line.className = 'timeline-line';
+track.appendChild(line);
+
+honors.forEach(item => {
+  const node = document.createElement('div');
+  node.className = 'timeline-node';
+
+  node.innerHTML = `
+    <span class="node-date">${item.date}</span>
+    <div class="node-dot"></div>
+    <span class="node-category">${item.category}</span>
+    <div class="tooltip">
+      <div class="tooltip-inner">
+        <span class="tooltip-text">${item.text}</span>
+      </div>
+    </div>
+  `;
+  track.appendChild(node);
+});
+
+// "未完待续..." at the end
+const endNode = document.createElement('div');
+endNode.className = 'timeline-end';
+endNode.innerHTML = '<span>未完待续...</span>';
+track.appendChild(endNode);
+
+// Slider logic
+let dragging = false;
+let scrollPct = 0;
+
+function updateTrackPosition(pct) {
+  const maxScroll = track.scrollWidth - viewport.clientWidth;
+  if (maxScroll <= 0) return;
+  track.style.transform = `translateX(${-pct * maxScroll}px)`;
+}
+
+sliderHandle.addEventListener('mousedown', (e) => {
+  dragging = true;
+  e.preventDefault();
+});
+
+document.addEventListener('mousemove', (e) => {
+  if (!dragging) return;
+  const rect = sliderTrack.getBoundingClientRect();
+  scrollPct = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+  sliderHandle.style.left = (scrollPct * 100) + '%';
+  updateTrackPosition(scrollPct);
+});
+
+document.addEventListener('mouseup', () => { dragging = false; });
+
+// Click on slider track to jump
+sliderTrack.addEventListener('click', (e) => {
+  if (e.target === sliderHandle) return;
+  const rect = sliderTrack.getBoundingClientRect();
+  scrollPct = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+  sliderHandle.style.left = (scrollPct * 100) + '%';
+  updateTrackPosition(scrollPct);
+});
+</script>
+</body>
+</html>

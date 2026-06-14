@@ -61,8 +61,8 @@ html, body {
 }
 
 .crown-area img {
-  max-height: 45vh;
-  max-width: 50vw;
+  max-height: 58vh;
+  max-width: 65vw;
   object-fit: contain;
   filter: drop-shadow(0 8px 30px rgba(196, 120, 50, 0.25));
 }
@@ -111,7 +111,6 @@ html, body {
   flex-direction: column;
   align-items: center;
   position: relative;
-  cursor: pointer;
 }
 
 .node-date {
@@ -130,9 +129,10 @@ html, body {
   box-shadow: 0 0 0 2px var(--teal-light);
   transition: transform 0.2s ease, background 0.2s ease;
   z-index: 2;
+  cursor: pointer;
 }
 
-.timeline-node:hover .node-dot {
+.node-dot:hover {
   transform: scale(1.4);
   background: var(--orange);
 }
@@ -160,20 +160,20 @@ html, body {
 .float-tooltip .tooltip-inner {
   position: relative;
   background: url('assets/honors/textbox.png') center/contain no-repeat;
-  width: 220px;
-  height: 110px;
+  width: 286px;
+  height: 143px;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 16px 24px;
+  padding: 20px 32px;
 }
 
 .float-tooltip .tooltip-text {
-  font-size: 13px;
+  font-size: 15px;
   color: var(--ink);
   text-align: center;
   line-height: 1.5;
-  max-width: 160px;
+  max-width: 200px;
 }
 
 .timeline-end {
@@ -341,22 +341,22 @@ sliderTrack.addEventListener('click', (e) => {
   updateTrackPosition(scrollPct);
 });
 
-// Floating tooltip logic
+// Floating tooltip logic — trigger only on dot, fixed position above dot
 const floatTooltip = document.getElementById('floatTooltip');
 const tooltipText = document.getElementById('tooltipText');
 
 document.querySelectorAll('.timeline-node').forEach(node => {
-  node.addEventListener('mouseenter', () => {
+  const dot = node.querySelector('.node-dot');
+
+  dot.addEventListener('mouseenter', () => {
     tooltipText.textContent = node.dataset.text;
+    const rect = dot.getBoundingClientRect();
+    floatTooltip.style.left = (rect.left + rect.width / 2) + 'px';
+    floatTooltip.style.top = (rect.top - 150) + 'px';
     floatTooltip.classList.add('visible');
   });
 
-  node.addEventListener('mousemove', (e) => {
-    floatTooltip.style.left = e.clientX + 'px';
-    floatTooltip.style.top = (e.clientY - 130) + 'px';
-  });
-
-  node.addEventListener('mouseleave', () => {
+  dot.addEventListener('mouseleave', () => {
     floatTooltip.classList.remove('visible');
   });
 });

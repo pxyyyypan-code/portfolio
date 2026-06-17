@@ -78,16 +78,16 @@ html, body {
 /* ===== Book Wrapper ===== */
 .book-wrapper {
   position: relative;
-  width: 82vw;
-  max-width: 960px;
-  height: 70vh;
-  max-height: 600px;
+  width: 88vw;
+  max-width: 1100px;
+  height: 78vh;
+  max-height: 700px;
 }
 
 /* Book background — the open-book spread image */
 .book-bg {
   position: absolute;
-  inset: -20px -30px -20px -30px;
+  inset: -24px -36px -24px -36px;
   z-index: 0;
   pointer-events: none;
 }
@@ -278,11 +278,12 @@ html, body {
   width: 100%;
   height: calc(100% - 50px);
   display: flex; align-items: center; justify-content: center;
+  padding: 8px;
 }
 
 .content-image img {
-  max-width: 100%;
-  max-height: 100%;
+  max-width: 90%;
+  max-height: 90%;
   object-fit: contain;
   border-radius: 4px;
   box-shadow: 0 3px 16px rgba(0,0,0,0.1);
@@ -400,6 +401,14 @@ const courses = [
       {
         left: { type: 'image', src: 'assets/homework/courses/数字艺术发展史/poster1.png', title: '《浪浪山小妖怪》二创海报' },
         right: { type: 'image', src: 'assets/homework/courses/数字艺术发展史/poster2.png', title: '海报设计' }
+      },
+      {
+        left: { type: 'image', src: 'assets/homework/courses/数字艺术发展史/before.png', title: '图片后期 — 修改前' },
+        right: { type: 'image', src: 'assets/homework/courses/数字艺术发展史/after.png', title: '图片后期 — 修改后' }
+      },
+      {
+        left: { type: 'text', title: '图片后期阐释', content: '通过裁剪图片把一些多余的干扰项去除，让图片更加干净清爽，同时增强了纵深感；调整了色调，让冷暖对比更加明显，突出主体旗帜和外卖员。\n\n拍摄的想法是看到外卖员在胡同中穿梭的感觉，是新兴与传统的交汇；外卖员身着红衣，也与旗帜颜色相呼应，体现出一种平凡中的伟大。' },
+        right: { type: 'empty' }
       }
     ]
   },
@@ -422,9 +431,18 @@ const courses = [
   }
 ];
 
-let currentCourse = 0;
 let currentSpread = 0;
 let isFlipping = false;
+
+// Build flat spread list across all courses
+const allSpreads = [];
+const courseStartIdx = [];
+courses.forEach((course, ci) => {
+  courseStartIdx.push(allSpreads.length);
+  course.spreads.forEach(spread => {
+    allSpreads.push({ ...spread, courseName: course.name, courseIdx: ci });
+  });
+});
 
 const bookLeft = document.getElementById('bookLeft');
 const flipContainer = document.getElementById('flipContainer');
@@ -438,22 +456,30 @@ courses.forEach((course, i) => {
   tab.className = 'h-tab' + (i === 0 ? ' active' : '');
   const tabIdx = (i % 5) + 1;
   tab.innerHTML = `<img src="assets/homework/tabs/h-tab${tabIdx}.png" alt=""><span>${course.name}</span>`;
-  tab.addEventListener('click', () => switchCourse(i));
+  tab.addEventListener('click', () => {
+    currentSpread = courseStartIdx[i];
+    renderSpread();
+  });
   hTabs.appendChild(tab);
 });
 
-// ===== Build Spread Tabs =====
+// ===== Build Page Tabs (v-tabs show pages within current course) =====
 function buildVTabs() {
   vTabs.innerHTML = '';
-  const spreads = courses[currentCourse].spreads;
-  spreads.forEach((_, i) => {
+  const ci = allSpreads[currentSpread].courseIdx;
+  const start = courseStartIdx[ci];
+  const end = (ci + 1 < courseStartIdx.length) ? courseStartIdx[ci + 1] : allSpreads.length;
+  const count = end - start;
+  const localIdx = currentSpread - start;
+  for (let i = 0; i < count; i++) {
     const tab = document.createElement('div');
-    tab.className = 'v-tab' + (i === currentSpread ? ' active' : '');
-    const tabIdx = (i % 2) + 1;
-    tab.innerHTML = `<img src="assets/homework/tabs/v-tab${tabIdx}.png" alt=""><span>${i + 1}</span>`;
-    tab.addEventListener('click', () => goToSpread(i));
+    tab.className = 'v-tab' + (i === localIdx ? ' active' : '');
+    const tabImgIdx = (i % 2) + 1;
+    tab.innerHTML = `<img src="assets/homework/tabs/v-tab${tabImgIdx}.png" alt=""><span>${i + 1}</span>`;
+    const targetIdx = start + i;
+    tab.addEventListener('click', () => { currentSpread = targetIdx; renderSpread(); });
     vTabs.appendChild(tab);
-  });
+  }
 }
 
 // ===== Render Content =====
@@ -472,7 +498,7 @@ function buildContent(data) {
 }
 
 function renderSpread() {
-  const spread = courses[currentCourse].spreads[currentSpread];
+  const spread = allSpreads[currentSpread];
   bookLeft.innerHTML = buildContent(spread.left);
 
   flipContainer.innerHTML = '';
@@ -485,22 +511,23 @@ function renderSpread() {
 
   const back = document.createElement('div');
   back.className = 'flip-back';
-  const nextSpread = courses[currentCourse].spreads[currentSpread + 1];
+  const nextSpread = allSpreads[currentSpread + 1];
   back.innerHTML = nextSpread ? buildContent(nextSpread.left) : '<div class="empty-page"></div>';
   page.appendChild(back);
 
   flipContainer.appendChild(page);
 
-  const total = courses[currentCourse].spreads.length;
-  pageIndicator.textContent = `${currentSpread + 1} / ${total}`;
-  document.querySelectorAll('.v-tab').forEach((t, i) => {
-    t.classList.toggle('active', i === currentSpread);
-  });
+  pageIndicator.textContent = `${currentSpread + 1} / ${allSpreads.length}`;
+
+  // Update h-tab active state
+  const ci = spread.courseIdx;
+  document.querySelectorAll('.h-tab').forEach((t, i) => t.classList.toggle('active', i === ci));
+
+  buildVTabs();
 }
 
 function flipForward() {
-  const total = courses[currentCourse].spreads.length;
-  if (currentSpread >= total - 1 || isFlipping) return;
+  if (currentSpread >= allSpreads.length - 1 || isFlipping) return;
   isFlipping = true;
   const page = flipContainer.querySelector('.flip-page');
   page.classList.add('flipping');
@@ -514,21 +541,6 @@ function flipForward() {
 function flipBackward() {
   if (currentSpread <= 0 || isFlipping) return;
   currentSpread--;
-  renderSpread();
-}
-
-function goToSpread(idx) {
-  const total = courses[currentCourse].spreads.length;
-  if (idx < 0 || idx >= total || isFlipping) return;
-  currentSpread = idx;
-  renderSpread();
-}
-
-function switchCourse(idx) {
-  currentCourse = idx;
-  currentSpread = 0;
-  document.querySelectorAll('.h-tab').forEach((t, i) => t.classList.toggle('active', i === idx));
-  buildVTabs();
   renderSpread();
 }
 

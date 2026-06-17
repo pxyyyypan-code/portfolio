@@ -75,25 +75,19 @@ html, body {
   transform: translateY(-2px);
 }
 
-/* ===== Book Container ===== */
-.book-container {
+/* ===== Book Wrapper ===== */
+.book-wrapper {
   position: relative;
-  width: 720px;
-  height: 500px;
-  perspective: 1800px;
+  width: 82vw;
+  max-width: 960px;
+  height: 70vh;
+  max-height: 600px;
 }
 
-.book {
-  position: relative;
-  width: 100%;
-  height: 100%;
-  transform-style: preserve-3d;
-}
-
-/* Book background image */
+/* Book background — the open-book spread image */
 .book-bg {
   position: absolute;
-  inset: -30px -40px -30px -40px;
+  inset: -20px -30px -20px -30px;
   z-index: 0;
   pointer-events: none;
 }
@@ -102,53 +96,85 @@ html, body {
   width: 100%;
   height: 100%;
   object-fit: fill;
+  filter: drop-shadow(0 8px 30px rgba(0,0,0,0.25));
 }
 
-/* ===== Pages ===== */
-.book-page {
+/* Content sits inside the book, inset from edges */
+.book-content {
   position: absolute;
-  top: 0; left: 0;
-  width: 100%; height: 100%;
+  top: 8%;
+  left: 6%;
+  right: 6%;
+  bottom: 8%;
   display: flex;
-  backface-visibility: hidden;
-  transform-origin: left center;
-  transition: transform 0.8s cubic-bezier(0.645, 0.045, 0.355, 1.0);
-  z-index: 1;
-  border-radius: 0 8px 8px 0;
+  z-index: 5;
+}
+
+.book-left {
+  flex: 1;
+  padding: 24px 20px 24px 28px;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.book-spine {
+  width: 16px;
+  flex-shrink: 0;
+}
+
+.book-right-area {
+  flex: 1;
+  position: relative;
+  perspective: 1200px;
   overflow: hidden;
 }
 
-.book-page.flipped {
-  transform: rotateY(-180deg);
-  z-index: 0;
+/* ===== Flip Page (right side) ===== */
+.flip-container {
+  width: 100%;
+  height: 100%;
+  position: relative;
 }
 
-.page-front, .page-back {
-  width: 100%; height: 100%;
+.flip-page {
   position: absolute;
-  top: 0; left: 0;
+  inset: 0;
+  transform-style: preserve-3d;
+  transform-origin: left center;
+  transition: transform 0.6s cubic-bezier(0.645, 0.045, 0.355, 1.0);
+}
+
+.flip-page.flipping {
+  transform: rotateY(-180deg);
+}
+
+.flip-front, .flip-back {
+  position: absolute;
+  inset: 0;
   backface-visibility: hidden;
-  padding: 30px 40px;
-  background: #faf8f4;
-  border-radius: 0 8px 8px 0;
+  padding: 24px 28px 24px 20px;
   overflow-y: auto;
+  overflow-x: hidden;
+  background: rgba(252, 250, 246, 0.5);
+  border-radius: 0 4px 4px 0;
 }
 
-.page-back {
+.flip-back {
   transform: rotateY(180deg);
+  border-radius: 4px 0 0 4px;
 }
 
-/* ===== Horizontal Tabs (top, course selection) ===== */
+/* ===== Horizontal Tabs ===== */
 .h-tabs {
   position: absolute;
-  top: -44px; left: 50px;
+  top: -48px; left: 10%;
   display: flex;
-  gap: 4px;
+  gap: 6px;
   z-index: 50;
 }
 
 .h-tab {
-  width: 90px; height: 44px;
+  width: 100px; height: 44px;
   cursor: pointer;
   position: relative;
   display: flex; align-items: center; justify-content: center;
@@ -164,26 +190,26 @@ html, body {
 .h-tab span {
   position: relative; z-index: 1;
   font-family: var(--font-body);
-  font-size: 11px;
+  font-size: 12px;
   color: var(--ink);
   white-space: nowrap;
 }
 
 .h-tab:hover { transform: translateY(-3px); }
-.h-tab.active { transform: translateY(-5px); filter: brightness(1.1); }
+.h-tab.active { transform: translateY(-6px); filter: brightness(1.08); }
 
-/* ===== Vertical Tabs (side, page navigation) ===== */
+/* ===== Vertical Tabs ===== */
 .v-tabs {
   position: absolute;
-  right: -48px; top: 40px;
+  right: -52px; top: 15%;
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 6px;
   z-index: 50;
 }
 
 .v-tab {
-  width: 44px; height: 60px;
+  width: 46px; height: 56px;
   cursor: pointer;
   position: relative;
   display: flex; align-items: center; justify-content: center;
@@ -204,12 +230,12 @@ html, body {
 }
 
 .v-tab:hover { transform: translateX(4px); }
-.v-tab.active { transform: translateX(8px); filter: brightness(1.1); }
+.v-tab.active { transform: translateX(8px); filter: brightness(1.08); }
 
 /* ===== Page Navigation ===== */
 .page-nav {
   position: absolute;
-  bottom: -50px; left: 50%;
+  bottom: -52px; left: 50%;
   transform: translateX(-50%);
   display: flex; align-items: center; gap: 16px;
   z-index: 50;
@@ -238,19 +264,19 @@ html, body {
   color: var(--teal);
 }
 
-/* ===== Page Content Styles ===== */
+/* ===== Content Styles ===== */
 .content-title {
   font-family: var(--font-hand);
-  font-size: 26px;
+  font-size: 24px;
   color: var(--teal);
-  margin-bottom: 16px;
-  padding-bottom: 8px;
+  margin-bottom: 12px;
+  padding-bottom: 6px;
   border-bottom: 2px dashed rgba(43,107,94,0.2);
 }
 
 .content-image {
-  position: relative;
-  width: 100%; height: calc(100% - 60px);
+  width: 100%;
+  height: calc(100% - 50px);
   display: flex; align-items: center; justify-content: center;
 }
 
@@ -259,83 +285,53 @@ html, body {
   max-height: 100%;
   object-fit: contain;
   border-radius: 4px;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+  box-shadow: 0 3px 16px rgba(0,0,0,0.1);
 }
 
 .content-text {
   position: relative;
-  height: calc(100% - 60px);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
+  height: calc(100% - 50px);
 }
 
 .letter-bg {
   position: absolute; inset: 0;
   background: url('assets/homework/letter-paper.png') center/contain no-repeat;
-  opacity: 0.15;
+  opacity: 0.12;
   pointer-events: none;
-}
-
-.scroll-trigger {
-  display: flex; flex-direction: column;
-  align-items: center; gap: 8px;
-  cursor: pointer;
-  transition: transform 0.3s;
-  animation: gentleBounce 2s ease-in-out infinite;
-}
-
-.scroll-trigger:hover { transform: scale(1.1); }
-
-.scroll-trigger img {
-  width: 64px; height: 64px;
-  object-fit: contain;
-}
-
-.scroll-trigger span {
-  font-family: var(--font-hand);
-  font-size: 16px;
-  color: var(--teal-light);
-}
-
-@keyframes gentleBounce {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-5px); }
 }
 
 .text-body {
   position: relative; z-index: 1;
-  font-size: 14px;
+  font-size: 13px;
   line-height: 2;
   color: var(--ink);
-  padding: 20px;
+  padding: 12px 4px;
   max-height: 100%;
   overflow-y: auto;
-  background: rgba(250,248,244,0.8);
-  border-radius: 8px;
 }
-
-.text-body.hidden { display: none; }
 
 .content-gallery {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
-  height: calc(100% - 60px);
+  grid-template-columns: 1fr;
+  gap: 10px;
+  height: calc(100% - 50px);
   overflow-y: auto;
 }
 
 .gallery-item {
   border-radius: 6px;
   overflow: hidden;
-  box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+  box-shadow: 0 2px 10px rgba(0,0,0,0.08);
 }
 
 .gallery-item img {
   width: 100%;
-  height: 100%;
-  object-fit: cover;
+  height: auto;
+  display: block;
+}
+
+.empty-page {
+  width: 100%; height: 100%;
 }
 </style>
 </head>
@@ -345,68 +341,94 @@ html, body {
   <h1 class="page-title">Academic</h1>
   <p class="page-subtitle">学业报告 · 课程作业</p>
 
-  <div class="book-container">
-    <!-- Horizontal tabs for courses -->
+  <div class="book-wrapper">
+    <!-- Horizontal tabs for courses (above the book) -->
     <div class="h-tabs" id="hTabs"></div>
 
-    <!-- Vertical tabs (page navigation) -->
-    <div class="v-tabs" id="vTabs"></div>
-
-    <div class="book" id="book">
-      <div class="book-bg">
-        <img src="assets/homework/book.png" alt="Book" />
-      </div>
-      <!-- Pages will be injected by JS -->
+    <!-- Book background image (the open book spread) -->
+    <div class="book-bg">
+      <img src="assets/homework/book.png" alt="Book" />
     </div>
 
-    <!-- Page flip controls -->
+    <!-- Content area sits inside the book spread -->
+    <div class="book-content">
+      <!-- Left page -->
+      <div class="book-left" id="bookLeft"></div>
+      <!-- Center spine -->
+      <div class="book-spine"></div>
+      <!-- Right page (flippable) -->
+      <div class="book-right-area">
+        <div class="flip-container" id="flipContainer"></div>
+      </div>
+    </div>
+
+    <!-- Vertical tabs (right side) -->
+    <div class="v-tabs" id="vTabs"></div>
+
+    <!-- Page navigation -->
     <div class="page-nav">
-      <button class="nav-btn prev-btn" id="prevBtn">‹</button>
+      <button class="nav-btn" id="prevBtn">‹</button>
       <span class="page-indicator" id="pageIndicator">1 / 1</span>
-      <button class="nav-btn next-btn" id="nextBtn">›</button>
+      <button class="nav-btn" id="nextBtn">›</button>
     </div>
   </div>
 </div>
 
 <script>
-// ===== Course Data =====
+// ===== Course Data (correct order: 艺术概论 → 数字艺术发展史 → 设计思维) =====
 const courses = [
   {
+    name: '艺术概论',
+    spreads: [
+      {
+        left: { type: 'text', title: '艺术概论-期中作业', content: '艺术概论课程涵盖了艺术的本质、功能、创作规律及鉴赏方法等核心内容。期中作业要求我们选择一件艺术作品进行深度赏析。' },
+        right: { type: 'text', title: '', content: '通过对经典艺术作品的研读与分析，我深入理解了艺术创作中形式与内容的辩证关系，以及不同艺术门类之间的共通性与差异性。\n\n这门课让我认识到，艺术不仅是技术的展现，更是思想与情感的表达载体。每一件优秀的艺术作品背后，都蕴含着创作者对生活、对人性的深刻洞察。' }
+      }
+    ]
+  },
+  {
     name: '数字艺术发展史',
-    pages: [
-      { type: 'image', src: 'assets/homework/courses/数字艺术发展史/poster1.png', title: '《浪浪山小妖怪》二创海报' },
-      { type: 'image', src: 'assets/homework/courses/数字艺术发展史/poster2.png', title: '海报设计' },
-      { type: 'text', title: '数字艺术发展史-第一次作业', content: '本课程主要探讨数字艺术从早期计算机图形到当代新媒体艺术的发展历程。通过对不同时期代表性作品的分析，理解技术进步如何推动艺术表现形式的变革。\n\n作业要求：选择一个数字艺术流派或代表艺术家，进行深入研究，并以海报形式展示研究成果。\n\n我选择了动画电影中的二创文化作为切入点，以《中国奇谭》中浪浪山小妖怪为主题，探讨了数字媒体时代下同人创作的新范式与传播方式。' }
+    spreads: [
+      {
+        left: { type: 'image', src: 'assets/homework/courses/数字艺术发展史/poster1.png', title: '《浪浪山小妖怪》二创海报' },
+        right: { type: 'text', title: '第一次作业', content: '本课程主要探讨数字艺术从早期计算机图形到当代新媒体艺术的发展历程。通过对不同时期代表性作品的分析，理解技术进步如何推动艺术表现形式的变革。\n\n作业要求：选择一个数字艺术流派或代表艺术家，进行深入研究，并以海报形式展示研究成果。\n\n我选择了动画电影中的二创文化作为切入点，以《中国奇谭》中浪浪山小妖怪为主题，探讨了数字媒体时代下同人创作的新范式与传播方式。' }
+      },
+      {
+        left: { type: 'image', src: 'assets/homework/courses/数字艺术发展史/poster2.png', title: '海报设计' },
+        right: { type: 'empty' }
+      }
     ]
   },
   {
     name: '设计思维',
-    pages: [
-      { type: 'image', src: 'assets/homework/courses/设计思维/work1.png', title: '她的需求' },
-      { type: 'image', src: 'assets/homework/courses/设计思维/work2.png', title: '用符号表示文字' },
-      { type: 'image', src: 'assets/homework/courses/设计思维/work3.png', title: '群化作业-基本形探索' },
-      { type: 'image', src: 'assets/homework/courses/设计思维/work4.png', title: '肌理感作业' },
-      { type: 'gallery', title: '创造汉字', images: [
-        'assets/homework/courses/设计思维/创造汉字/1.png',
-        'assets/homework/courses/设计思维/创造汉字/2.png',
-        'assets/homework/courses/设计思维/创造汉字/3.png',
-        'assets/homework/courses/设计思维/创造汉字/4.png'
-      ]}
-    ]
-  },
-  {
-    name: '艺术概论',
-    pages: [
-      { type: 'text', title: '艺术概论-期中作业', content: '艺术概论课程涵盖了艺术的本质、功能、创作规律及鉴赏方法等核心内容。期中作业要求我们选择一件艺术作品进行深度赏析。\n\n通过对经典艺术作品的研读与分析，我深入理解了艺术创作中形式与内容的辩证关系，以及不同艺术门类之间的共通性与差异性。\n\n这门课让我认识到，艺术不仅是技术的展现，更是思想与情感的表达载体。每一件优秀的艺术作品背后，都蕴含着创作者对生活、对人性的深刻洞察。' }
+    spreads: [
+      {
+        left: { type: 'image', src: 'assets/homework/courses/设计思维/work1.png', title: '她的需求' },
+        right: { type: 'image', src: 'assets/homework/courses/设计思维/work2.png', title: '用符号表示文字' }
+      },
+      {
+        left: { type: 'image', src: 'assets/homework/courses/设计思维/work3.png', title: '群化作业-基本形探索' },
+        right: { type: 'image', src: 'assets/homework/courses/设计思维/work4.png', title: '肌理感作业' }
+      },
+      {
+        left: { type: 'gallery', title: '创造汉字', images: ['assets/homework/courses/设计思维/创造汉字/1.png','assets/homework/courses/设计思维/创造汉字/2.png'] },
+        right: { type: 'gallery', title: '', images: ['assets/homework/courses/设计思维/创造汉字/3.png','assets/homework/courses/设计思维/创造汉字/4.png'] }
+      }
     ]
   }
 ];
 
 let currentCourse = 0;
-let currentPage = 0;
+let currentSpread = 0;
+let isFlipping = false;
 
-// ===== Build Horizontal Tabs =====
+const bookLeft = document.getElementById('bookLeft');
+const flipContainer = document.getElementById('flipContainer');
+const pageIndicator = document.getElementById('pageIndicator');
 const hTabs = document.getElementById('hTabs');
+const vTabs = document.getElementById('vTabs');
+
+// ===== Build Course Tabs =====
 courses.forEach((course, i) => {
   const tab = document.createElement('div');
   tab.className = 'h-tab' + (i === 0 ? ' active' : '');
@@ -416,118 +438,106 @@ courses.forEach((course, i) => {
   hTabs.appendChild(tab);
 });
 
-// ===== Build Vertical Tabs =====
-const vTabs = document.getElementById('vTabs');
+// ===== Build Spread Tabs =====
 function buildVTabs() {
   vTabs.innerHTML = '';
-  const pages = courses[currentCourse].pages;
-  pages.forEach((p, i) => {
+  const spreads = courses[currentCourse].spreads;
+  spreads.forEach((_, i) => {
     const tab = document.createElement('div');
-    tab.className = 'v-tab' + (i === currentPage ? ' active' : '');
+    tab.className = 'v-tab' + (i === currentSpread ? ' active' : '');
     const tabIdx = (i % 2) + 1;
     tab.innerHTML = `<img src="assets/homework/tabs/v-tab${tabIdx}.png" alt=""><span>${i + 1}</span>`;
-    tab.addEventListener('click', () => goToPage(i));
+    tab.addEventListener('click', () => goToSpread(i));
     vTabs.appendChild(tab);
   });
 }
 
-// ===== Render Book Pages =====
-const book = document.getElementById('book');
-const pageIndicator = document.getElementById('pageIndicator');
-
-function renderPages() {
-  const existing = book.querySelectorAll('.book-page');
-  existing.forEach(el => el.remove());
-
-  const pages = courses[currentCourse].pages;
-  currentPage = 0;
-
-  pages.forEach((pageData, i) => {
-    const pageEl = document.createElement('div');
-    pageEl.className = 'book-page';
-    pageEl.style.zIndex = pages.length - i;
-
-    const front = document.createElement('div');
-    front.className = 'page-front';
-    front.innerHTML = buildPageContent(pageData);
-    pageEl.appendChild(front);
-
-    book.appendChild(pageEl);
-  });
-
-  updatePageState();
-  buildVTabs();
-}
-
-function buildPageContent(data) {
-  let html = `<h3 class="content-title">${data.title}</h3>`;
+// ===== Render Content =====
+function buildContent(data) {
+  if (!data || data.type === 'empty') return '<div class="empty-page"></div>';
+  let html = '';
+  if (data.title) html += `<h3 class="content-title">${data.title}</h3>`;
   if (data.type === 'image') {
-    html += `<div class="content-image"><img src="${data.src}" alt="${data.title}"><div class="frame-overlay"></div></div>`;
+    html += `<div class="content-image"><img src="${data.src}" alt="${data.title || ''}"></div>`;
   } else if (data.type === 'text') {
-    html += `<div class="content-text"><div class="letter-bg"></div><div class="scroll-trigger"><img src="assets/homework/scroll-icon.png" alt="展开"><span>点击展开全文</span></div><div class="text-body hidden">${data.content.replace(/\n/g, '<br>')}</div></div>`;
+    html += `<div class="content-text"><div class="letter-bg"></div><div class="text-body">${data.content.replace(/\n/g, '<br>')}</div></div>`;
   } else if (data.type === 'gallery') {
     html += `<div class="content-gallery">${data.images.map(src => `<div class="gallery-item"><img src="${src}" alt=""></div>`).join('')}</div>`;
   }
   return html;
 }
 
-function updatePageState() {
-  const pages = book.querySelectorAll('.book-page');
-  pages.forEach((p, i) => {
-    if (i < currentPage) {
-      p.classList.add('flipped');
-      p.style.zIndex = i;
-    } else {
-      p.classList.remove('flipped');
-      p.style.zIndex = pages.length - i;
-    }
-  });
-  const total = courses[currentCourse].pages.length;
-  pageIndicator.textContent = `${currentPage + 1} / ${total}`;
+function renderSpread() {
+  const spread = courses[currentCourse].spreads[currentSpread];
+  bookLeft.innerHTML = buildContent(spread.left);
 
-  // Update v-tab active state
+  flipContainer.innerHTML = '';
+  const page = document.createElement('div');
+  page.className = 'flip-page';
+  const front = document.createElement('div');
+  front.className = 'flip-front';
+  front.innerHTML = buildContent(spread.right);
+  page.appendChild(front);
+
+  const back = document.createElement('div');
+  back.className = 'flip-back';
+  const nextSpread = courses[currentCourse].spreads[currentSpread + 1];
+  back.innerHTML = nextSpread ? buildContent(nextSpread.left) : '<div class="empty-page"></div>';
+  page.appendChild(back);
+
+  flipContainer.appendChild(page);
+
+  const total = courses[currentCourse].spreads.length;
+  pageIndicator.textContent = `${currentSpread + 1} / ${total}`;
   document.querySelectorAll('.v-tab').forEach((t, i) => {
-    t.classList.toggle('active', i === currentPage);
+    t.classList.toggle('active', i === currentSpread);
   });
 }
 
-function goToPage(idx) {
-  const total = courses[currentCourse].pages.length;
-  if (idx < 0 || idx >= total) return;
-  currentPage = idx;
-  updatePageState();
+function flipForward() {
+  const total = courses[currentCourse].spreads.length;
+  if (currentSpread >= total - 1 || isFlipping) return;
+  isFlipping = true;
+  const page = flipContainer.querySelector('.flip-page');
+  page.classList.add('flipping');
+  setTimeout(() => {
+    currentSpread++;
+    renderSpread();
+    isFlipping = false;
+  }, 600);
+}
+
+function flipBackward() {
+  if (currentSpread <= 0 || isFlipping) return;
+  currentSpread--;
+  renderSpread();
+}
+
+function goToSpread(idx) {
+  const total = courses[currentCourse].spreads.length;
+  if (idx < 0 || idx >= total || isFlipping) return;
+  currentSpread = idx;
+  renderSpread();
 }
 
 function switchCourse(idx) {
   currentCourse = idx;
-  document.querySelectorAll('.h-tab').forEach((t, i) => {
-    t.classList.toggle('active', i === idx);
-  });
-  renderPages();
+  currentSpread = 0;
+  document.querySelectorAll('.h-tab').forEach((t, i) => t.classList.toggle('active', i === idx));
+  buildVTabs();
+  renderSpread();
 }
 
-// Navigation buttons
-document.getElementById('prevBtn').addEventListener('click', () => goToPage(currentPage - 1));
-document.getElementById('nextBtn').addEventListener('click', () => goToPage(currentPage + 1));
+document.getElementById('prevBtn').addEventListener('click', flipBackward);
+document.getElementById('nextBtn').addEventListener('click', flipForward);
 
-// Scroll icon click to reveal text
-document.addEventListener('click', (e) => {
-  const trigger = e.target.closest('.scroll-trigger');
-  if (!trigger) return;
-  const textBody = trigger.nextElementSibling;
-  if (textBody) {
-    textBody.classList.remove('hidden');
-    trigger.style.display = 'none';
-  }
-});
-
-// Back button
 document.getElementById('backBtn').addEventListener('click', () => {
   window.parent.document.getElementById('about-section').scrollIntoView({ behavior: 'smooth' });
 });
 
 // Initial render
-renderPages();
+buildVTabs();
+renderSpread();
 </script>
 </body>
 </html>

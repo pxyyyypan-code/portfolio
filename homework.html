@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Academic Report — Pan Xiaoya</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;600&family=Noto+Sans+SC:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+:root {
+  --bg: #F5F2EB;
+  --teal: #2B6B5E;
+  --teal-light: #4A8F7F;
+  --orange: #C47832;
+  --ink: #2A2A28;
+  --font-hand: 'Caveat', cursive;
+  --font-body: 'Noto Sans SC', sans-serif;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  width: 100%; height: 100%;
+  overflow: hidden;
+  background-color: #F5F2EB;
+  background-image: url("assets/paper-texture.jpg");
+  background-size: 512px 512px;
+  font-family: var(--font-body);
+  color: var(--ink);
+}
+
+.page {
+  width: 100%; height: 100vh;
+  display: flex; align-items: center; justify-content: center;
+  position: relative; overflow: hidden;
+}
+
+.page-title {
+  position: absolute;
+  top: 36px; left: 48px;
+  font-family: var(--font-hand);
+  font-size: clamp(48px, 8vw, 100px);
+  font-weight: 600; color: var(--teal);
+  line-height: 1; pointer-events: none; z-index: 20;
+}
+
+.page-subtitle {
+  position: absolute;
+  top: 130px; left: 52px;
+  font-size: 14px; font-weight: 300;
+  color: #5C5C32; letter-spacing: 0.08em;
+  pointer-events: none; z-index: 20;
+}
+
+.back-home-btn {
+  position: absolute;
+  top: 36px; right: 48px;
+  padding: 8px 20px;
+  font-family: var(--font-hand);
+  font-size: 18px;
+  color: var(--teal);
+  background: rgba(245,242,235,0.8);
+  border: 1.5px solid var(--teal-light);
+  border-radius: 20px;
+  cursor: pointer;
+  z-index: 30;
+  transition: background 0.2s, transform 0.2s;
+  text-decoration: none;
+}
+
+.back-home-btn:hover {
+  background: var(--teal);
+  color: #fff;
+  transform: translateY(-2px);
+}
+
+/* ===== Book Container ===== */
+.book-container {
+  position: relative;
+  width: 720px;
+  height: 500px;
+  perspective: 1800px;
+}
+
+.book {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+}
+
+/* Book background image */
+.book-bg {
+  position: absolute;
+  inset: -30px -40px -30px -40px;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.book-bg img {
+  width: 100%;
+  height: 100%;
+  object-fit: fill;
+}
+
+/* ===== Pages ===== */
+.book-page {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  display: flex;
+  backface-visibility: hidden;
+  transform-origin: left center;
+  transition: transform 0.8s cubic-bezier(0.645, 0.045, 0.355, 1.0);
+  z-index: 1;
+  border-radius: 0 8px 8px 0;
+  overflow: hidden;
+}
+
+.book-page.flipped {
+  transform: rotateY(-180deg);
+  z-index: 0;
+}
+
+.page-front, .page-back {
+  width: 100%; height: 100%;
+  position: absolute;
+  top: 0; left: 0;
+  backface-visibility: hidden;
+  padding: 30px 40px;
+  background: #faf8f4;
+  border-radius: 0 8px 8px 0;
+  overflow-y: auto;
+}
+
+.page-back {
+  transform: rotateY(180deg);
+}
+
+/* ===== Horizontal Tabs (top, course selection) ===== */
+.h-tabs {
+  position: absolute;
+  top: -44px; left: 50px;
+  display: flex;
+  gap: 4px;
+  z-index: 50;
+}
+
+.h-tab {
+  width: 90px; height: 44px;
+  cursor: pointer;
+  position: relative;
+  display: flex; align-items: center; justify-content: center;
+  transition: transform 0.2s;
+}
+
+.h-tab img {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  object-fit: fill;
+}
+
+.h-tab span {
+  position: relative; z-index: 1;
+  font-family: var(--font-body);
+  font-size: 11px;
+  color: var(--ink);
+  white-space: nowrap;
+}
+
+.h-tab:hover { transform: translateY(-3px); }
+.h-tab.active { transform: translateY(-5px); filter: brightness(1.1); }
+
+/* ===== Vertical Tabs (side, page navigation) ===== */
+.v-tabs {
+  position: absolute;
+  right: -48px; top: 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  z-index: 50;
+}
+
+.v-tab {
+  width: 44px; height: 60px;
+  cursor: pointer;
+  position: relative;
+  display: flex; align-items: center; justify-content: center;
+  transition: transform 0.2s;
+}
+
+.v-tab img {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  object-fit: fill;
+}
+
+.v-tab span {
+  position: relative; z-index: 1;
+  font-family: var(--font-hand);
+  font-size: 16px;
+  color: var(--ink);
+}
+
+.v-tab:hover { transform: translateX(4px); }
+.v-tab.active { transform: translateX(8px); filter: brightness(1.1); }
+
+/* ===== Page Navigation ===== */
+.page-nav {
+  position: absolute;
+  bottom: -50px; left: 50%;
+  transform: translateX(-50%);
+  display: flex; align-items: center; gap: 16px;
+  z-index: 50;
+}
+
+.nav-btn {
+  width: 36px; height: 36px;
+  border: 1.5px solid var(--teal-light);
+  background: rgba(245,242,235,0.9);
+  border-radius: 50%;
+  font-size: 20px; color: var(--teal);
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex; align-items: center; justify-content: center;
+}
+
+.nav-btn:hover {
+  background: var(--teal);
+  color: #fff;
+  transform: scale(1.1);
+}
+
+.page-indicator {
+  font-family: var(--font-hand);
+  font-size: 18px;
+  color: var(--teal);
+}
+
+/* ===== Page Content Styles ===== */
+.content-title {
+  font-family: var(--font-hand);
+  font-size: 26px;
+  color: var(--teal);
+  margin-bottom: 16px;
+  padding-bottom: 8px;
+  border-bottom: 2px dashed rgba(43,107,94,0.2);
+}
+
+.content-image {
+  position: relative;
+  width: 100%; height: calc(100% - 60px);
+  display: flex; align-items: center; justify-content: center;
+}
+
+.content-image img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  border-radius: 4px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+}
+
+.content-text {
+  position: relative;
+  height: calc(100% - 60px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.letter-bg {
+  position: absolute; inset: 0;
+  background: url('assets/homework/letter-paper.png') center/contain no-repeat;
+  opacity: 0.15;
+  pointer-events: none;
+}
+
+.scroll-trigger {
+  display: flex; flex-direction: column;
+  align-items: center; gap: 8px;
+  cursor: pointer;
+  transition: transform 0.3s;
+  animation: gentleBounce 2s ease-in-out infinite;
+}
+
+.scroll-trigger:hover { transform: scale(1.1); }
+
+.scroll-trigger img {
+  width: 64px; height: 64px;
+  object-fit: contain;
+}
+
+.scroll-trigger span {
+  font-family: var(--font-hand);
+  font-size: 16px;
+  color: var(--teal-light);
+}
+
+@keyframes gentleBounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-5px); }
+}
+
+.text-body {
+  position: relative; z-index: 1;
+  font-size: 14px;
+  line-height: 2;
+  color: var(--ink);
+  padding: 20px;
+  max-height: 100%;
+  overflow-y: auto;
+  background: rgba(250,248,244,0.8);
+  border-radius: 8px;
+}
+
+.text-body.hidden { display: none; }
+
+.content-gallery {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  height: calc(100% - 60px);
+  overflow-y: auto;
+}
+
+.gallery-item {
+  border-radius: 6px;
+  overflow: hidden;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+}
+
+.gallery-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+</style>
+</head>
+<body>
+<div class="page">
+  <a class="back-home-btn" id="backBtn">← 返回</a>
+  <h1 class="page-title">Academic</h1>
+  <p class="page-subtitle">学业报告 · 课程作业</p>
+
+  <div class="book-container">
+    <!-- Horizontal tabs for courses -->
+    <div class="h-tabs" id="hTabs"></div>
+
+    <!-- Vertical tabs (page navigation) -->
+    <div class="v-tabs" id="vTabs"></div>
+
+    <div class="book" id="book">
+      <div class="book-bg">
+        <img src="assets/homework/book.png" alt="Book" />
+      </div>
+      <!-- Pages will be injected by JS -->
+    </div>
+
+    <!-- Page flip controls -->
+    <div class="page-nav">
+      <button class="nav-btn prev-btn" id="prevBtn">‹</button>
+      <span class="page-indicator" id="pageIndicator">1 / 1</span>
+      <button class="nav-btn next-btn" id="nextBtn">›</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ===== Course Data =====
+const courses = [
+  {
+    name: '数字艺术发展史',
+    pages: [
+      { type: 'image', src: 'assets/homework/courses/数字艺术发展史/poster1.png', title: '《浪浪山小妖怪》二创海报' },
+      { type: 'image', src: 'assets/homework/courses/数字艺术发展史/poster2.png', title: '海报设计' },
+      { type: 'text', title: '数字艺术发展史-第一次作业', content: '本课程主要探讨数字艺术从早期计算机图形到当代新媒体艺术的发展历程。通过对不同时期代表性作品的分析，理解技术进步如何推动艺术表现形式的变革。\n\n作业要求：选择一个数字艺术流派或代表艺术家，进行深入研究，并以海报形式展示研究成果。\n\n我选择了动画电影中的二创文化作为切入点，以《中国奇谭》中浪浪山小妖怪为主题，探讨了数字媒体时代下同人创作的新范式与传播方式。' }
+    ]
+  },
+  {
+    name: '设计思维',
+    pages: [
+      { type: 'image', src: 'assets/homework/courses/设计思维/work1.png', title: '她的需求' },
+      { type: 'image', src: 'assets/homework/courses/设计思维/work2.png', title: '用符号表示文字' },
+      { type: 'image', src: 'assets/homework/courses/设计思维/work3.png', title: '群化作业-基本形探索' },
+      { type: 'image', src: 'assets/homework/courses/设计思维/work4.png', title: '肌理感作业' },
+      { type: 'gallery', title: '创造汉字', images: [
+        'assets/homework/courses/设计思维/创造汉字/1.png',
+        'assets/homework/courses/设计思维/创造汉字/2.png',
+        'assets/homework/courses/设计思维/创造汉字/3.png',
+        'assets/homework/courses/设计思维/创造汉字/4.png'
+      ]}
+    ]
+  },
+  {
+    name: '艺术概论',
+    pages: [
+      { type: 'text', title: '艺术概论-期中作业', content: '艺术概论课程涵盖了艺术的本质、功能、创作规律及鉴赏方法等核心内容。期中作业要求我们选择一件艺术作品进行深度赏析。\n\n通过对经典艺术作品的研读与分析，我深入理解了艺术创作中形式与内容的辩证关系，以及不同艺术门类之间的共通性与差异性。\n\n这门课让我认识到，艺术不仅是技术的展现，更是思想与情感的表达载体。每一件优秀的艺术作品背后，都蕴含着创作者对生活、对人性的深刻洞察。' }
+    ]
+  }
+];
+
+let currentCourse = 0;
+let currentPage = 0;
+
+// ===== Build Horizontal Tabs =====
+const hTabs = document.getElementById('hTabs');
+courses.forEach((course, i) => {
+  const tab = document.createElement('div');
+  tab.className = 'h-tab' + (i === 0 ? ' active' : '');
+  const tabIdx = (i % 5) + 1;
+  tab.innerHTML = `<img src="assets/homework/tabs/h-tab${tabIdx}.png" alt=""><span>${course.name}</span>`;
+  tab.addEventListener('click', () => switchCourse(i));
+  hTabs.appendChild(tab);
+});
+
+// ===== Build Vertical Tabs =====
+const vTabs = document.getElementById('vTabs');
+function buildVTabs() {
+  vTabs.innerHTML = '';
+  const pages = courses[currentCourse].pages;
+  pages.forEach((p, i) => {
+    const tab = document.createElement('div');
+    tab.className = 'v-tab' + (i === currentPage ? ' active' : '');
+    const tabIdx = (i % 2) + 1;
+    tab.innerHTML = `<img src="assets/homework/tabs/v-tab${tabIdx}.png" alt=""><span>${i + 1}</span>`;
+    tab.addEventListener('click', () => goToPage(i));
+    vTabs.appendChild(tab);
+  });
+}
+
+// ===== Render Book Pages =====
+const book = document.getElementById('book');
+const pageIndicator = document.getElementById('pageIndicator');
+
+function renderPages() {
+  const existing = book.querySelectorAll('.book-page');
+  existing.forEach(el => el.remove());
+
+  const pages = courses[currentCourse].pages;
+  currentPage = 0;
+
+  pages.forEach((pageData, i) => {
+    const pageEl = document.createElement('div');
+    pageEl.className = 'book-page';
+    pageEl.style.zIndex = pages.length - i;
+
+    const front = document.createElement('div');
+    front.className = 'page-front';
+    front.innerHTML = buildPageContent(pageData);
+    pageEl.appendChild(front);
+
+    book.appendChild(pageEl);
+  });
+
+  updatePageState();
+  buildVTabs();
+}
+
+function buildPageContent(data) {
+  let html = `<h3 class="content-title">${data.title}</h3>`;
+  if (data.type === 'image') {
+    html += `<div class="content-image"><img src="${data.src}" alt="${data.title}"><div class="frame-overlay"></div></div>`;
+  } else if (data.type === 'text') {
+    html += `<div class="content-text"><div class="letter-bg"></div><div class="scroll-trigger"><img src="assets/homework/scroll-icon.png" alt="展开"><span>点击展开全文</span></div><div class="text-body hidden">${data.content.replace(/\n/g, '<br>')}</div></div>`;
+  } else if (data.type === 'gallery') {
+    html += `<div class="content-gallery">${data.images.map(src => `<div class="gallery-item"><img src="${src}" alt=""></div>`).join('')}</div>`;
+  }
+  return html;
+}
+
+function updatePageState() {
+  const pages = book.querySelectorAll('.book-page');
+  pages.forEach((p, i) => {
+    if (i < currentPage) {
+      p.classList.add('flipped');
+      p.style.zIndex = i;
+    } else {
+      p.classList.remove('flipped');
+      p.style.zIndex = pages.length - i;
+    }
+  });
+  const total = courses[currentCourse].pages.length;
+  pageIndicator.textContent = `${currentPage + 1} / ${total}`;
+
+  // Update v-tab active state
+  document.querySelectorAll('.v-tab').forEach((t, i) => {
+    t.classList.toggle('active', i === currentPage);
+  });
+}
+
+function goToPage(idx) {
+  const total = courses[currentCourse].pages.length;
+  if (idx < 0 || idx >= total) return;
+  currentPage = idx;
+  updatePageState();
+}
+
+function switchCourse(idx) {
+  currentCourse = idx;
+  document.querySelectorAll('.h-tab').forEach((t, i) => {
+    t.classList.toggle('active', i === idx);
+  });
+  renderPages();
+}
+
+// Navigation buttons
+document.getElementById('prevBtn').addEventListener('click', () => goToPage(currentPage - 1));
+document.getElementById('nextBtn').addEventListener('click', () => goToPage(currentPage + 1));
+
+// Scroll icon click to reveal text
+document.addEventListener('click', (e) => {
+  const trigger = e.target.closest('.scroll-trigger');
+  if (!trigger) return;
+  const textBody = trigger.nextElementSibling;
+  if (textBody) {
+    textBody.classList.remove('hidden');
+    trigger.style.display = 'none';
+  }
+});
+
+// Back button
+document.getElementById('backBtn').addEventListener('click', () => {
+  window.parent.document.getElementById('about-section').scrollIntoView({ behavior: 'smooth' });
+});
+
+// Initial render
+renderPages();
+</script>
+</body>
+</html>
